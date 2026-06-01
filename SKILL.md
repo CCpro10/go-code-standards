@@ -40,6 +40,22 @@ To generate a starter `golangci-lint` config:
 python3 /path/to/go-code-standards/scripts/enforce_go_style.py --repo . --write-golangci-config
 ```
 
+## Install or Update
+
+Install or update this skill into the local Codex skills directory:
+
+```bash
+bash /path/to/go-code-standards/scripts/sync_skill.sh
+```
+
+Or bootstrap directly from GitHub:
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/CCpro10/go-code-standards/main/scripts/sync_skill.sh | bash
+```
+
+The script syncs to `${CODEX_HOME:-$HOME/.codex}/skills/go-code-standards` by default. Re-run the same command to update an existing local copy.
+
 ## Required Checks
 
 Always run these when the repository has Go files:
