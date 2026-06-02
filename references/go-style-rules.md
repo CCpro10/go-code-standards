@@ -1,6 +1,6 @@
-# Go Style Rules
+# General Go Style Rules
 
-The Chinese file `references/go-style-rules.zh.md` is the canonical source of truth. Keep this English version synchronized with it.
+The Chinese project rules in `references/project-rules.zh.md` have the highest priority and must be followed completely. This file keeps only general Go style rules derived from Google Go Style and the Uber Go Style Guide. If this file conflicts with the project rules, follow the project rules.
 
 This checklist condenses high-signal rules from:
 
@@ -15,11 +15,7 @@ This checklist condenses high-signal rules from:
 - Use `goimports` to group imports into standard library, third-party, and local/project imports.
 - Keep package names short, lowercase, and meaningful. Avoid `util`, `common`, `misc`, and stutter such as `user.UserManager` when `user.Manager` is sufficient.
 - Keep files cohesive by package responsibility, not by broad architectural layers.
-- In each package, keep exported package-level functions and methods before unexported package-level functions and methods.
-- Treat the first unexported function or method as the start of the private section; do not place uppercase function or method names after it.
 - Generated files and `_test.go` files are exempt from package function ordering unless a repository explicitly opts in.
-- Declare variables as late as practical. If a variable may remain unused because a later validation or dependency call fails, move the declaration after that fallible step.
-- For large business structs, prefer keyed composite literals that show the complete object shape in one place. Avoid declaring an empty struct and then assigning fields one by one unless mutation is required by the API or control flow.
 
 ## Naming
 
@@ -36,17 +32,6 @@ This checklist condenses high-signal rules from:
 - Keep interfaces small. Single-method interfaces are fine when they model real behavior.
 - Put `context.Context` as the first parameter after the receiver. Do not store contexts in structs.
 - Do not use `init` for ordinary setup; prefer explicit constructors and dependency injection.
-
-## Boundary and Normalization
-
-- Keep system boundaries explicit. Required business inputs must be validated at request parsing, construction, or service entry, not silently repaired deep inside business logic.
-- Avoid vague `normalizeXxx` functions that trim, filter, deduplicate, default, and reshape data at the same time. The name should reveal the real operation, such as `validateSkillRefs`, `dedupeSkillRefs`, or `parseSkillRefs`.
-- Do not accept both valid and invalid business inputs by silently cleaning invalid ones. Empty required fields, malformed identifiers, invalid states, missing dependencies, and wrong call ordering should fail early with clear errors.
-- Use normalization only when it is part of an explicit interface contract, such as trimming UI text, preserving backward compatibility, or canonicalizing a documented external representation.
-- When normalization is required, keep it near the boundary and make the scope visible: what fields are changed, which invalid inputs fail, which compatible forms are accepted, and why.
-- Do not drop invalid business data with `continue` unless skipping is a documented business rule. For required fields such as `SkillKey`, prefer returning an error over silently filtering the item.
-- Separate validation from transformation when both matter. A function that validates should not also mutate semantics unless its name and return type make that contract obvious.
-- Prefer explicit failure over fallback behavior that exists only to avoid errors. Degradation must be a designed business capability, not an accidental runtime escape path.
 
 ## Errors and Logging
 

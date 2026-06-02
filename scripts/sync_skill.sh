@@ -85,6 +85,7 @@ fi
 
 if [[ "${lang}" == "zh" ]]; then
   cp "${target}/SKILL.zh.md" "${target}/SKILL.md"
+  cp "${target}/references/project-rules.zh.md" "${target}/references/project-rules.md"
   cp "${target}/references/go-style-rules.zh.md" "${target}/references/go-style-rules.md"
   if [[ -f "${target}/agents/openai.zh.yaml" ]]; then
     cp "${target}/agents/openai.zh.yaml" "${target}/agents/openai.yaml"

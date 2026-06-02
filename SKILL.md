@@ -10,6 +10,7 @@ description: Go code standards and enforcement workflow based on Google Go Style
 This is the default English skill. The Chinese files are the canonical source of truth:
 
 - `SKILL.zh.md`
+- `references/project-rules.zh.md`
 - `references/go-style-rules.zh.md`
 
 Keep the English version synchronized with the Chinese version when rules change.
@@ -19,7 +20,7 @@ Keep the English version synchronized with the Chinese version when rules change
 Use this skill for Go code changes, Go reviews, and repository-level Go quality gates.
 
 1. Read the local repository conventions first: existing `Makefile`, CI, `.golangci.yml`, `go.mod`, package layout, generated-code policy, and test patterns.
-2. Apply the style rules in `references/go-style-rules.md` when writing or reviewing code. Treat existing local conventions as binding unless they conflict with correctness, maintainability, or a stronger project standard.
+2. Apply the highest-priority project rules in `references/project-rules.md` first, then apply the general Go style rules in `references/go-style-rules.md`.
 3. Run `scripts/enforce_go_style.py` from the target repository before finishing.
 4. Report any skipped checks and why. Do not claim enforcement passed if required tools were missing or tests were not run.
 
@@ -96,4 +97,4 @@ Prioritize issues in this order:
 3. Maintainability: simple control flow, small cohesive packages, explicit dependencies, and table-driven tests.
 4. Style consistency: formatting, import grouping, receiver names, initialisms, error wrapping, and logging.
 
-Use `references/go-style-rules.md` for the compact style checklist and source links.
+Read `references/project-rules.md` first for mandatory project rules, then `references/go-style-rules.md` for general Go style rules and source links.

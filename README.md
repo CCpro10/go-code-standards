@@ -12,8 +12,10 @@ It includes:
 
 - `SKILL.md`: English Skill, installed by default.
 - `SKILL.zh.md`: Chinese Skill, canonical source of truth.
-- `references/go-style-rules.md`: English rule reference.
-- `references/go-style-rules.zh.md`: Chinese rule reference, canonical source of truth.
+- `references/project-rules.md`: English project rules.
+- `references/project-rules.zh.md`: Chinese project rules, highest-priority source of truth.
+- `references/go-style-rules.md`: English general Go style reference.
+- `references/go-style-rules.zh.md`: Chinese general Go style reference.
 - `scripts/enforce_go_style.py`: Main enforcement script.
 - `scripts/check_go_decl_order.go`: Go AST checker for package declaration ordering.
 - `scripts/sync_skill.sh`: Installer/updater for local Codex skills.
@@ -79,17 +81,16 @@ Some business-boundary rules are documented as review rules because hard-failing
 
 The Chinese rules are the source of truth:
 
-- Keep business boundaries explicit.
-- Do not hide invalid input behind vague `normalizeXxx` functions.
-- Prefer clear failure over runtime fallback.
-- Declare variables when they become useful, not before fallible work.
-- Build large business structs with keyed composite literals when possible.
-- Keep code short and direct without excessive one-off helper functions.
+1. `references/project-rules.zh.md`: highest-priority project rules taught by the user. These must be followed completely.
+2. `references/go-style-rules.zh.md`: general Go style rules learned from Google Go Style and the Uber Go Style Guide.
+3. Repository-local conventions, only when they do not violate the two rule layers above.
 
 Read the full rule set:
 
-- Chinese: `references/go-style-rules.zh.md`
-- English: `references/go-style-rules.md`
+- Chinese project rules: `references/project-rules.zh.md`
+- Chinese general style rules: `references/go-style-rules.zh.md`
+- English project rules: `references/project-rules.md`
+- English general style rules: `references/go-style-rules.md`
 
 ## Local Development
 
@@ -105,6 +106,7 @@ Validate the Chinese variant:
 tmp="$(mktemp -d)"
 cp -R . "$tmp/skill"
 cp "$tmp/skill/SKILL.zh.md" "$tmp/skill/SKILL.md"
+cp "$tmp/skill/references/project-rules.zh.md" "$tmp/skill/references/project-rules.md"
 cp "$tmp/skill/references/go-style-rules.zh.md" "$tmp/skill/references/go-style-rules.md"
 cp "$tmp/skill/agents/openai.zh.yaml" "$tmp/skill/agents/openai.yaml"
 uv run --with PyYAML python /Users/bytedance/.codex/skills/.system/skill-creator/scripts/quick_validate.py "$tmp/skill"
