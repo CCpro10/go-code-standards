@@ -65,6 +65,7 @@ Always run these when the repository has Go files:
 - Modules: `go mod tidy` verification when `go.mod` exists.
 - Package declarations: exported package-level functions and methods must appear before unexported ones in each package; uppercase names are forbidden in the unexported section.
 - Local clarity: delay declaring variables until they are needed when earlier failure paths could make them unused; construct large business structs with keyed composite literals instead of declaring an empty value and assigning fields one by one.
+- Boundary clarity: do not hide input cleanup, filtering, deduplication, and defaulting behind vague normalization names; validate business inputs at the boundary and fail clearly when required fields are invalid.
 - Static checks: `go vet ./...`.
 - Tests: `go test ./...`, unless the user explicitly asks to skip tests.
 - Linting: `golangci-lint run ./...` when configured or in strict mode.

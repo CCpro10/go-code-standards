@@ -35,6 +35,17 @@ This checklist condenses high-signal rules from:
 - Put `context.Context` as the first parameter after the receiver. Do not store contexts in structs.
 - Do not use `init` for ordinary setup; prefer explicit constructors and dependency injection.
 
+## Boundary and Normalization
+
+- Keep system boundaries explicit. Required business inputs must be validated at request parsing, construction, or service entry, not silently repaired deep inside business logic.
+- Avoid vague `normalizeXxx` functions that trim, filter, deduplicate, default, and reshape data at the same time. The name should reveal the real operation, such as `validateSkillRefs`, `dedupeSkillRefs`, or `parseSkillRefs`.
+- Do not accept both valid and invalid business inputs by silently cleaning invalid ones. Empty required fields, malformed identifiers, invalid states, missing dependencies, and wrong call ordering should fail early with clear errors.
+- Use normalization only when it is part of an explicit interface contract, such as trimming UI text, preserving backward compatibility, or canonicalizing a documented external representation.
+- When normalization is required, keep it near the boundary and make the scope visible: what fields are changed, which invalid inputs fail, which compatible forms are accepted, and why.
+- Do not drop invalid business data with `continue` unless skipping is a documented business rule. For required fields such as `SkillKey`, prefer returning an error over silently filtering the item.
+- Separate validation from transformation when both matter. A function that validates should not also mutate semantics unless its name and return type make that contract obvious.
+- Prefer explicit failure over fallback behavior that exists only to avoid errors. Degradation must be a designed business capability, not an accidental runtime escape path.
+
 ## Errors and Logging
 
 - Handle every error. If intentionally ignored, make that explicit with a comment or a narrowly-scoped helper.
