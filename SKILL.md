@@ -84,7 +84,7 @@ Always run these when the repository has Go files:
 - Package declarations: the most important exported package-level functions and methods must appear first, followed by other exported functions and methods, with unexported functions and methods last; uppercase names are forbidden in the unexported section.
 - Local clarity: delay declaring variables until they are needed when earlier failure paths could make them unused; construct large business structs with keyed composite literals instead of declaring an empty value and assigning fields one by one.
 - Comments and structs: function code must include informative comments; complex functions need detailed comments. Structs must be necessary and clear; avoid unnecessary intermediate structs.
-- Boundary clarity: do not hide input cleanup, filtering, deduplication, and defaulting behind vague normalization names; validate business inputs at the boundary and fail clearly when required fields are invalid.
+- Boundary clarity: follow Design by Contract, Fail Fast, Parse Don’t Validate, and Make Illegal States Unrepresentable; do not hide cleanup, filtering, deduplication, or defaulting behind vague normalization names.
 - Static checks: `go vet ./...`.
 - Tests: `go test ./...`, unless the user explicitly asks to skip tests.
 - Linting: `golangci-lint run ./...` when configured or in strict mode.

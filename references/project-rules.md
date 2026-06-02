@@ -12,6 +12,8 @@ These rules come from user requirements for real Go business code. The goal is e
 
 ## Boundaries and Failure
 
+- Follow Design by Contract: callers guarantee preconditions, and functions guarantee postconditions. If a function contract already requires valid input, do not add fallback branches inside the function that swallow invalid input.
+- Follow Fail Fast: the earlier an error surfaces, the easier it is to locate. Business code should make bugs fail near their source instead of letting defaults, filtering, or normalization hide them later in the flow.
 - Do not keep “theoretically impossible” branches in business methods. Missing dependencies, missing configuration, and invalid constructor arguments should fail at startup or construction time. Do not make every RPC method return runtime fallback responses such as `not implemented`.
 - Do not make one piece of logic accept too many unclear input sources. Missing fields, invalid states, uninitialized dependencies, and wrong call ordering should fail early with clear errors instead of continuing.
 - Degradation must be an explicitly designed business capability. If fallback exists only to avoid an error, prefer explicit failure.
@@ -22,6 +24,8 @@ These rules come from user requirements for real Go business code. The goal is e
 
 - Do not hide trimming, filtering, deduplication, defaulting, and reshaping behind vague `normalizeXxx` functions. Function names must reveal the real operation, such as `validateSkillRefs`, `dedupeSkillRefs`, or `parseSkillRefs`.
 - Do not let the system accept both valid and invalid business inputs. Required business fields must be validated at request parsing, construction, or service entry. Invalid inputs should fail clearly, not be silently repaired deep in business logic.
+- Follow Parse, Don’t Validate: do not repeatedly check the same data for validity throughout the system. Parse untrusted input into trusted types at the boundary, then let core business logic assume the contract holds.
+- Make illegal states unrepresentable where practical. For key business fields, prefer constructors, private fields, package boundaries, or dedicated types that express validated state, such as a `SkillKey` type for a non-empty valid skill key instead of passing raw `string` everywhere.
 - Do not use vague defaults to hide the call chain. If a request field is part of business semantics, such as `occurred_at`, the caller must pass it explicitly and the entry point must validate it. Do not silently fall back to `time.Now()` inside a service.
 - Business configuration should be explicitly declared. Unless an interface contract, product rule, or technical plan explicitly requires a default, do not fill missing business configuration with code defaults.
 - Defaults are allowed only for non-business engineering parameters or documented compatibility behavior. Fill defaults near entry validation, and make the source, default policy, and scope visible.
