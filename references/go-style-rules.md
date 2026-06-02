@@ -1,5 +1,7 @@
 # Go Style Rules
 
+The Chinese file `references/go-style-rules.zh.md` is the canonical source of truth. Keep this English version synchronized with it.
+
 This checklist condenses high-signal rules from:
 
 - Google Go Style: https://google.github.io/styleguide/go/

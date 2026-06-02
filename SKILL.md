@@ -5,6 +5,15 @@ description: Go code standards and enforcement workflow based on Google Go Style
 
 # Go Code Standards
 
+## Language Source
+
+This is the default English skill. The Chinese files are the canonical source of truth:
+
+- `SKILL.zh.md`
+- `references/go-style-rules.zh.md`
+
+Keep the English version synchronized with the Chinese version when rules change.
+
 ## Workflow
 
 Use this skill for Go code changes, Go reviews, and repository-level Go quality gates.
@@ -54,7 +63,15 @@ Or bootstrap directly from GitHub:
 curl -fsSL https://raw.githubusercontent.com/CCpro10/go-code-standards/main/scripts/sync_skill.sh | bash
 ```
 
-The script syncs to `${CODEX_HOME:-$HOME/.codex}/skills/go-code-standards` by default. Re-run the same command to update an existing local copy.
+The script installs English by default to `${CODEX_HOME:-$HOME/.codex}/skills/go-code-standards`. Re-run the same command to update an existing local copy.
+
+Install or update the Chinese version:
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/CCpro10/go-code-standards/main/scripts/sync_skill.sh | bash -s -- --lang zh
+```
+
+The Chinese version installs to `${CODEX_HOME:-$HOME/.codex}/skills/go-code-standards-zh` by default.
 
 ## Required Checks
 
