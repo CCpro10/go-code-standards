@@ -40,15 +40,22 @@ These rules come from user requirements for real Go business code. The goal is e
 - Good code is short and direct first. If a small amount of sequential code is clear, do not split it into many one-off helpers, and do not introduce verbose normalization layers just to “remove branches”.
 - Do not extract extra helper functions for logic used only once. Extract only when a function reduces complexity, expresses a clear business concept, or is reused in multiple places.
 - Do not cut code into too many small functions. Prefer splitting files by responsibility, then keep a small number of business-meaningful functions.
-- Functions need necessary comments. Comments should explain business intent, failure boundaries, or key constraints. Do not write low-information comments such as “assign value to variable”.
+- Function code must include comments. Simple functions should at least explain business intent, input boundaries, or return semantics. Complex functions must have more detailed comments that explain key branches, failure boundaries, state changes, or business constraints.
+- Comments must add information. Do not write comments that merely restate code, such as “assign value to variable” or “call method”.
 - Important business logic should have meaningful logs.
 - Use reasonable blank lines and line breaks to make logic phases clear.
 
+## Structs
+
+- Structs must be necessary and clear, and they should reduce understanding cost. Do not define many intermediate structs for temporary transformation, ad hoc assembly, or hiding the call chain.
+- Before defining a struct, confirm that it expresses a stable business concept, external contract, persistent state, or reused data shape. Without that need, prefer explicit inputs, local variables, or direct construction of the target object.
+- Structs add reading and maintenance cost. Do not define structs whose field meanings, sources, or lifecycles are unclear.
+
 ## Package and Naming
 
-- In each package, exported package-level functions and methods must appear before unexported package-level functions and methods.
+- In each package, the most important exported package-level functions and methods must appear first, followed by other exported functions and methods, with unexported functions and methods last.
 - Treat the first unexported function or method as the start of the private section; do not place uppercase function or method names after it.
-- Functions that are not intended as package APIs must start with a lowercase letter.
+- Do not mark non-API functions as exported. Functions that are not intended as package APIs must start with a lowercase letter; do not capitalize them merely for cross-file calls, test convenience, or perceived importance.
 
 ## Pointer Helpers
 

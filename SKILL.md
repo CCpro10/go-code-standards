@@ -81,8 +81,9 @@ Always run these when the repository has Go files:
 - Formatting: `gofmt`; prefer `gofumpt` when available or required by the repo.
 - Imports: `goimports` when available or in strict mode.
 - Modules: `go mod tidy` verification when `go.mod` exists.
-- Package declarations: exported package-level functions and methods must appear before unexported ones in each package; uppercase names are forbidden in the unexported section.
+- Package declarations: the most important exported package-level functions and methods must appear first, followed by other exported functions and methods, with unexported functions and methods last; uppercase names are forbidden in the unexported section.
 - Local clarity: delay declaring variables until they are needed when earlier failure paths could make them unused; construct large business structs with keyed composite literals instead of declaring an empty value and assigning fields one by one.
+- Comments and structs: function code must include informative comments; complex functions need detailed comments. Structs must be necessary and clear; avoid unnecessary intermediate structs.
 - Boundary clarity: do not hide input cleanup, filtering, deduplication, and defaulting behind vague normalization names; validate business inputs at the boundary and fail clearly when required fields are invalid.
 - Static checks: `go vet ./...`.
 - Tests: `go test ./...`, unless the user explicitly asks to skip tests.

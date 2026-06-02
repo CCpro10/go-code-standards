@@ -67,8 +67,9 @@ curl -fsSL https://raw.githubusercontent.com/CCpro10/go-code-standards/main/scri
 - 格式化：`gofmt`；如果仓库采用或要求 `gofumpt`，优先使用 `gofumpt`。
 - 导入：可用或 strict 模式下使用 `goimports`。
 - 模块：存在 `go.mod` 时验证 `go mod tidy`。
-- 包级声明顺序：每个 package 中，可导出的 package-level 函数和方法必须位于不可导出的函数和方法之前；private section 后禁止出现大写开头的函数或方法。
+- 包级声明顺序：每个 package 中，最重要的可导出 package-level 函数和方法必须位于最前面，其他可导出函数随后，不可导出函数和方法在最后；private section 后禁止出现大写开头的函数或方法。
 - 局部清晰度：如果变量可能因为后续失败路径而没有机会使用，应延后声明；大业务结构体优先使用 keyed composite literal 一次性构造，不要先声明空值再逐字段赋值。
+- 注释和结构体：函数代码必须包含有信息量的注释；复杂函数必须有详细注释。结构体必须必要且清晰，禁止大量无必要中间结构体。
 - 边界清晰度：不要用含糊的 normalization 名称隐藏输入清洗、过滤、去重和默认值补齐；业务输入应在边界校验，非法时清晰失败。
 - 静态检查：`go vet ./...`。
 - 测试：`go test ./...`，除非用户明确要求跳过。
