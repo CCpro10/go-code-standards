@@ -43,6 +43,8 @@ Chinese: ${CODEX_HOME:-$HOME/.codex}/skills/go-code-standards-zh
 
 Re-run the same install command to update. Restart Codex after installing or updating so it can reload skills.
 
+Security note: this repository ships executable scripts. For a new environment, inspect `scripts/sync_skill.sh` before piping it to `bash`.
+
 ## Use The Checks
 
 Run from a Go repository:
@@ -94,7 +96,13 @@ Read the full rule set:
 
 ## Local Development
 
-Validate the Skill:
+Validate the repository:
+
+```bash
+scripts/validate_repo.sh
+```
+
+Validate only the English Skill metadata:
 
 ```bash
 uv run --with PyYAML python /Users/bytedance/.codex/skills/.system/skill-creator/scripts/quick_validate.py .
