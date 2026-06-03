@@ -1,0 +1,4 @@
+interface:
+  display_name: "Codex Development"
+  short_description: "Explore, compare, adversarially review, then implement"
+  default_prompt: "Use $codex-development to design, review, and implement this code change."

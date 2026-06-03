@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Validate this repository's Skill files without external Python packages."""
+"""Validate this multi-skill repository without external Python packages."""
 
 from __future__ import annotations
 
@@ -9,6 +9,8 @@ from pathlib import Path
 
 
 ROOT = Path(__file__).resolve().parents[1]
+SKILLS_DIR = ROOT / "skills"
+MANIFEST = SKILLS_DIR / "manifest.tsv"
 NAME_RE = re.compile(r"^[a-z0-9-]+$")
 
 
@@ -40,23 +42,31 @@ def parse_frontmatter(path: Path) -> dict[str, str]:
     return fields
 
 
-def validate_skill(path: Path, expected_name: str) -> None:
-    fields = parse_frontmatter(path)
+def validate_skill(skill_dir: Path) -> None:
+    skill_md = skill_dir / "SKILL.md"
+    if not skill_md.is_file():
+        fail(f"{skill_dir}: missing SKILL.md")
+
+    fields = parse_frontmatter(skill_md)
     name = fields.get("name", "")
     description = fields.get("description", "")
 
-    if name != expected_name:
-        fail(f"{path}: expected name {expected_name!r}, got {name!r}")
+    if name != skill_dir.name:
+        fail(f"{skill_md}: expected name {skill_dir.name!r}, got {name!r}")
     if not NAME_RE.match(name):
-        fail(f"{path}: name must be hyphen-case")
+        fail(f"{skill_md}: name must be hyphen-case")
     if len(name) > 64:
-        fail(f"{path}: name is longer than 64 characters")
+        fail(f"{skill_md}: name is longer than 64 characters")
     if not description:
-        fail(f"{path}: description is required")
+        fail(f"{skill_md}: description is required")
     if len(description) > 1024:
-        fail(f"{path}: description is longer than 1024 characters")
+        fail(f"{skill_md}: description is longer than 1024 characters")
     if "<" in description or ">" in description:
-        fail(f"{path}: description must not contain angle brackets")
+        fail(f"{skill_md}: description must not contain angle brackets")
+
+    openai_yaml = skill_dir / "agents" / "openai.yaml"
+    if not openai_yaml.is_file():
+        fail(f"{skill_dir}: missing agents/openai.yaml")
 
 
 def require_file(relative: str) -> None:
@@ -72,30 +82,58 @@ def require_executable(relative: str) -> None:
         fail(f"script is not executable: {relative}")
 
 
+def read_manifest() -> dict[str, str]:
+    if not MANIFEST.is_file():
+        fail("missing skills/manifest.tsv")
+
+    skills: dict[str, str] = {}
+    for lineno, line in enumerate(MANIFEST.read_text(encoding="utf-8").splitlines(), 1):
+        if not line.strip():
+            continue
+        parts = line.split("\t")
+        if len(parts) != 2:
+            fail(f"skills/manifest.tsv:{lineno}: expected two tab-separated columns")
+        name, description = parts
+        if not NAME_RE.match(name):
+            fail(f"skills/manifest.tsv:{lineno}: invalid skill name: {name}")
+        if not description.strip():
+            fail(f"skills/manifest.tsv:{lineno}: description is required")
+        if name in skills:
+            fail(f"skills/manifest.tsv:{lineno}: duplicate skill name: {name}")
+        skills[name] = description
+    if not skills:
+        fail("skills/manifest.tsv: no skills listed")
+    return skills
+
+
 def main() -> int:
-    validate_skill(ROOT / "SKILL.md", "go-code-standards")
-    validate_skill(ROOT / "SKILL.zh.md", "go-code-standards-zh")
+    if not SKILLS_DIR.is_dir():
+        fail("missing skills/ directory")
+
+    manifest = read_manifest()
+    found = {path.name for path in SKILLS_DIR.iterdir() if path.is_dir()}
+    expected = set(manifest)
+    missing = expected - found
+    if missing:
+        fail("missing expected skills: " + ", ".join(sorted(missing)))
+    extra = found - expected
+    if extra:
+        fail("skill directories missing from manifest: " + ", ".join(sorted(extra)))
+
+    for skill_dir in sorted(path for path in SKILLS_DIR.iterdir() if path.is_dir()):
+        validate_skill(skill_dir)
+
+    require_file("README.md")
+    require_file(".github/workflows/validate.yml")
 
     for relative in (
-        "README.md",
-        "agents/openai.yaml",
-        "agents/openai.zh.yaml",
-        "references/project-rules.md",
-        "references/project-rules.zh.md",
-        "references/go-style-rules.md",
-        "references/go-style-rules.zh.md",
-    ):
-        require_file(relative)
-
-    for relative in (
-        "scripts/enforce_go_style.py",
         "scripts/sync_skill.sh",
         "scripts/validate_repo.sh",
         "scripts/validate_skill.py",
     ):
         require_executable(relative)
 
-    print("[ok] skill repository metadata")
+    print("[ok] multi-skill repository metadata")
     return 0
 
 

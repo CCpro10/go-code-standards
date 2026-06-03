@@ -1,51 +1,72 @@
-# Go Code Standards Skill
+# Codex Skills
 
-Go code standards for Codex, with executable checks and bilingual Skill files.
+A multi-Skill repository for Codex workflows.
 
-中文规则是基准，英文版本保持同步；安装默认使用英文。
+This repository follows the common public Skill-repo pattern: each Skill is a self-contained directory under `skills/<skill-name>/` with its own `SKILL.md`, optional `agents/`, `references/`, and `scripts/`.
 
-## What It Does
+The canonical skill list lives in `skills/manifest.tsv`; both installation and validation read from that manifest.
 
-This Skill helps Codex write, review, and gate Go code with standards inspired by Google Go Style and the Uber Go Style Guide, plus project-specific rules for clearer business boundaries.
+## Skills
 
-It includes:
+| Skill | Purpose |
+| --- | --- |
+| `go-code-standards` | English Go code standards and enforcement workflow. |
+| `go-code-standards-zh` | Chinese Go code standards. This is the source of truth for project-specific Go rules. |
+| `codex-development` | Codex development workflow: explore code, compare 2-3方案, run adversarial subAgent review, then implement. |
 
-- `SKILL.md`: English Skill, installed by default.
-- `SKILL.zh.md`: Chinese Skill, canonical source of truth.
-- `references/project-rules.md`: English project rules.
-- `references/project-rules.zh.md`: Chinese project rules, highest-priority source of truth.
-- `references/go-style-rules.md`: English general Go style reference.
-- `references/go-style-rules.zh.md`: Chinese general Go style reference.
-- `scripts/enforce_go_style.py`: Main enforcement script.
-- `scripts/check_go_decl_order.go`: Go AST checker for package declaration ordering.
-- `scripts/sync_skill.sh`: Installer/updater for local Codex skills.
+## Migration From The Old Single-Skill Layout
 
-## Install or Update
+Earlier versions exposed the Go standards Skill at the repository root. This repository is now intentionally multi-Skill, so root-level `SKILL.md` is no longer present. Install `go-code-standards` or `go-code-standards-zh` with `scripts/sync_skill.sh` instead of cloning the repository root into a skills directory.
 
-Install or update the default English Skill:
+## Install Or Update
+
+Install the default Go standards Skill:
 
 ```bash
 curl -fsSL https://raw.githubusercontent.com/CCpro10/go-code-standards/main/scripts/sync_skill.sh | bash
 ```
 
-Install or update the Chinese Skill:
+Install a specific Skill:
 
 ```bash
+curl -fsSL https://raw.githubusercontent.com/CCpro10/go-code-standards/main/scripts/sync_skill.sh | bash -s -- --skill codex-development
+```
+
+Install the Chinese Go standards Skill:
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/CCpro10/go-code-standards/main/scripts/sync_skill.sh | bash -s -- --skill go-code-standards-zh
+```
+
+Install all Skills:
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/CCpro10/go-code-standards/main/scripts/sync_skill.sh | bash -s -- --all
+```
+
+Backward-compatible language aliases:
+
+```bash
+# English Go standards
+curl -fsSL https://raw.githubusercontent.com/CCpro10/go-code-standards/main/scripts/sync_skill.sh | bash -s -- --lang en
+
+# Chinese Go standards
 curl -fsSL https://raw.githubusercontent.com/CCpro10/go-code-standards/main/scripts/sync_skill.sh | bash -s -- --lang zh
 ```
 
 Default install paths:
 
 ```text
-English: ${CODEX_HOME:-$HOME/.codex}/skills/go-code-standards
-Chinese: ${CODEX_HOME:-$HOME/.codex}/skills/go-code-standards-zh
+${CODEX_HOME:-$HOME/.codex}/skills/go-code-standards
+${CODEX_HOME:-$HOME/.codex}/skills/go-code-standards-zh
+${CODEX_HOME:-$HOME/.codex}/skills/codex-development
 ```
 
 Re-run the same install command to update. Restart Codex after installing or updating so it can reload skills.
 
 Security note: this repository ships executable scripts. For a new environment, inspect `scripts/sync_skill.sh` before piping it to `bash`.
 
-## Use The Checks
+## Use The Go Checks
 
 Run from a Go repository:
 
@@ -65,34 +86,28 @@ Strict mode requires recommended external tools such as `gofumpt`, `goimports`, 
 python3 ~/.codex/skills/go-code-standards/scripts/enforce_go_style.py --repo . --strict
 ```
 
-## Enforced Rules
+## Go Rule Priority
 
-The script enforces rules that are deterministic enough for automation:
+The Chinese Go project rules are the source of truth:
 
-- `gofmt`, and `gofumpt` when available or required.
-- `goimports` when available or strict.
-- `go mod tidy` verification when `go.mod` exists.
-- Package-level exported functions and methods must appear before unexported ones.
-- `go vet ./...`.
-- `go test ./...`.
-- `golangci-lint run ./...` when configured or strict.
-
-Some business-boundary rules are documented as review rules because hard-failing them with scripts would create too many false positives.
-
-## Rule Philosophy
-
-The Chinese rules are the source of truth:
-
-1. `references/project-rules.zh.md`: highest-priority project rules taught by the user. These must be followed completely.
-2. `references/go-style-rules.zh.md`: general Go style rules learned from Google Go Style and the Uber Go Style Guide.
+1. `skills/go-code-standards-zh/references/project-rules.md`: highest-priority project rules taught by the user. These must be followed completely.
+2. `skills/go-code-standards-zh/references/go-style-rules.md`: general Go style rules learned from Google Go Style and the Uber Go Style Guide.
 3. Repository-local conventions, only when they do not violate the two rule layers above.
 
-Read the full rule set:
+English synchronized files:
 
-- Chinese project rules: `references/project-rules.zh.md`
-- Chinese general style rules: `references/go-style-rules.zh.md`
-- English project rules: `references/project-rules.md`
-- English general style rules: `references/go-style-rules.md`
+- `skills/go-code-standards/references/project-rules.md`
+- `skills/go-code-standards/references/go-style-rules.md`
+
+## Codex Development Skill
+
+`codex-development` enforces a deliberate development workflow:
+
+1. Explore the codebase before implementation.
+2. Present 2-3方案 with trade-offs and 2-3 hard points.
+3. Start a subAgent using `gpt-5.4-mini` with `xhigh` reasoning for adversarial方案 review.
+4. Synthesize the review and choose the方案.
+5. Execute scoped edits and verification.
 
 ## Local Development
 
@@ -102,37 +117,26 @@ Validate the repository:
 scripts/validate_repo.sh
 ```
 
-Validate only the English Skill metadata:
+Install from a local checkout for testing:
 
 ```bash
-uv run --with PyYAML python /Users/bytedance/.codex/skills/.system/skill-creator/scripts/quick_validate.py .
+GO_CODE_STANDARDS_REPO="$(pwd)" scripts/sync_skill.sh --skill codex-development
+GO_CODE_STANDARDS_REPO="$(pwd)" scripts/sync_skill.sh --all
 ```
 
-Validate the Chinese variant:
+Run script checks directly:
 
 ```bash
-tmp="$(mktemp -d)"
-cp -R . "$tmp/skill"
-cp "$tmp/skill/SKILL.zh.md" "$tmp/skill/SKILL.md"
-cp "$tmp/skill/references/project-rules.zh.md" "$tmp/skill/references/project-rules.md"
-cp "$tmp/skill/references/go-style-rules.zh.md" "$tmp/skill/references/go-style-rules.md"
-cp "$tmp/skill/agents/openai.zh.yaml" "$tmp/skill/agents/openai.yaml"
-uv run --with PyYAML python /Users/bytedance/.codex/skills/.system/skill-creator/scripts/quick_validate.py "$tmp/skill"
-rm -rf "$tmp"
-```
-
-Run script checks:
-
-```bash
-python3 -m py_compile scripts/enforce_go_style.py
-go run scripts/check_go_decl_order.go --repo .
+python3 -m py_compile scripts/validate_skill.py
+python3 -m py_compile skills/go-code-standards/scripts/enforce_go_style.py
+go run skills/go-code-standards/scripts/check_go_decl_order.go --repo .
 bash -n scripts/sync_skill.sh
 ```
 
 ## Notes For Maintainers
 
-- Update Chinese rules first.
-- Keep English rules synchronized with Chinese rules.
+- Keep each Skill self-contained under `skills/<skill-name>/`.
+- Update Chinese Go project rules first, then synchronize English.
 - Keep `SKILL.md` concise; put detailed guidance in `references/`.
 - Keep scripts deterministic and low false-positive.
 - Do not add pre-commit hook installation; the repository provides scripts only.
