@@ -1,74 +1,25 @@
 ---
 name: codex-development
-description: Codex software development workflow for code changes that require thoughtful design before implementation. Use when Codex is asked to implement, refactor, fix, or extend code and should first explore the codebase, compare 2-3方案 with trade-offs and difficulties, run an adversarial subAgent review with GPT-5.4-mini at xhigh reasoning, then synthesize feedback and execute the selected plan.
+description: Codex development workflow for non-trivial code changes. Use when Codex should explore the codebase, compare 2-3 implementation方案 with difficulties and trade-offs, run a GPT-5.4-mini xhigh adversarial subAgent review, then synthesize feedback and execute the selected方案.
 ---
 
 # Codex Development
 
-Use this Skill for non-trivial coding work where design quality matters before edits begin.
+Use this Skill for implementation, refactor, or bug-fix work that needs design before edits.
 
-## Mandatory Workflow
+## Workflow
 
-Follow this order. Do not skip the adversarial review unless the subagent tool is unavailable; if unavailable, state that clearly and perform a local adversarial review instead.
+1. Explore first: read relevant code, tests, conventions, and ownership boundaries. Prefer `rg`, `rg --files`, `git status`, and focused file reads.
+2. Propose 2-3方案: include scope, files likely touched, benefits, trade-offs, and 2-3 hard points for each. Recommend one方案, but keep it provisional.
+3. Start an adversarial subAgent: model `gpt-5.4-mini`, reasoning `xhigh`. If unavailable, use the closest available configuration and say so.
+4. Ask the subAgent to review only the方案, not implement. It should find drawbacks, hidden assumptions, failure modes, missing tests, and simpler alternatives.
+5. Synthesize the review, revise the plan if needed, then implement the chosen方案 with scoped edits and appropriate verification.
+6. Close with the chosen方案, how review changed it, files changed, and verification results.
 
-1. Explore the codebase first.
-   - Read the relevant files, tests, local conventions, existing abstractions, and ownership boundaries.
-   - Prefer `rg`, `rg --files`, `git status`, and focused file reads.
-   - Do not start implementation while the design space is still unclear.
-
-2. Propose 2-3 implementation方案.
-   - Each方案 must include concrete scope, likely files touched, benefits, trade-offs, and 2-3 difficult points.
-   - Include a clear recommendation, but do not treat it as final before review.
-   - Prefer the smallest方案 that satisfies the user request and fits the existing codebase.
-
-3. Start a subAgent for adversarial review.
-   - Use the available subagent/multi-agent tool.
-   - Set model to `gpt-5.4-mini`.
-   - Set reasoning effort to `xhigh`.
-   - If the exact model or reasoning effort is unavailable, use the closest available subAgent configuration and report the substitution before continuing.
-   - Ask it to review the proposed方案 only, focusing on drawbacks, hidden assumptions, likely failure modes, missing tests, and simpler alternatives.
-   - Pass only the necessary code/context and the方案 text. Do not ask it to implement.
-
-4. Wait for the subAgent review when the next step depends on it.
-   - Summarize the strongest objections.
-   - Discard weak or irrelevant objections.
-   - Revise the chosen方案 if the review reveals a better path.
-
-5. Execute the chosen方案.
-   - Make scoped edits using repository conventions.
-   - Preserve unrelated user changes.
-   - Add or update tests proportional to risk.
-   - Run focused verification and report anything skipped.
-
-6. Close out.
-   - State which方案 was chosen and why.
-   - State how the adversarial review changed the plan, if it did.
-   - Summarize changed files and verification results.
-
-## SubAgent Prompt Template
-
-Use a prompt like this:
+## SubAgent Prompt
 
 ```text
 Review these implementation方案 adversarially. Do not implement.
-
-Focus on:
-- hidden assumptions
-- drawbacks and failure modes
-- missing tests or verification
-- simpler alternatives
-- whether the recommendation is actually the best fit for the existing codebase
-
-Required output:
-- strongest objections by方案
-- recommended方案 after review
-- changes that should be made before implementation
+Focus on hidden assumptions, drawbacks, failure modes, missing tests, and simpler alternatives.
+Return strongest objections, recommended方案, and changes needed before implementation.
 ```
-
-## Design Standards
-
-- A方案 is not complete unless it names the hard parts.
-- Avoid speculative abstractions.
-- Prefer explicit boundaries, clear failure, and direct code.
-- If the request is tiny and the correct change is obvious, keep the方案 comparison brief but still identify alternatives and why they are worse.
-- If the subAgent review conflicts with repository evidence, trust the codebase evidence and explain why.
