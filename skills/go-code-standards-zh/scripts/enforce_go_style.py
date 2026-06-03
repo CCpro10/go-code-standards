@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Enforce Go formatting, imports, declaration order, and style lint checks."""
+"""Enforce Go formatting, imports, declaration style, and style lint checks."""
 
 from __future__ import annotations
 
@@ -180,7 +180,7 @@ def check_decl_order(repo: Path, include_tests: bool) -> None:
         cmd.append("--include-tests")
     result = run(cmd, repo)
     if result.returncode != 0:
-        raise CheckFailure("package declaration order check failed")
+        raise CheckFailure("Go declaration style check failed")
 
 
 def parse_args(argv: list[str]) -> argparse.Namespace:
@@ -195,8 +195,8 @@ def parse_args(argv: list[str]) -> argparse.Namespace:
     parser.add_argument("--race", action="store_true", help="run go test -race ./... when --with-tests is set")
     parser.add_argument("--skip-vet", action="store_true", help="deprecated no-op; vet is skipped by default")
     parser.add_argument("--skip-lint", action="store_true", help="skip golangci-lint")
-    parser.add_argument("--skip-decl-order", action="store_true", help="skip package exported-before-unexported check")
-    parser.add_argument("--include-test-decls", action="store_true", help="include _test.go files in declaration order checks")
+    parser.add_argument("--skip-decl-order", action="store_true", help="skip declaration order and struct comment checks")
+    parser.add_argument("--include-test-decls", action="store_true", help="include _test.go files in declaration style checks")
     parser.add_argument("--write-golangci-config", action="store_true", help="write starter .golangci.yml")
     parser.add_argument("--overwrite-golangci-config", action="store_true", help="replace existing .golangci.yml")
     return parser.parse_args(argv)
@@ -230,7 +230,7 @@ def main(argv: list[str]) -> int:
         if not args.skip_decl_order:
             check_decl_order(repo, args.include_test_decls)
         else:
-            print("[skip] package declaration order")
+            print("[skip] Go declaration style")
 
         if args.with_mod_tidy:
             check_go_mod_tidy(repo, args.fix)

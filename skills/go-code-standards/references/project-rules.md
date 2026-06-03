@@ -24,6 +24,9 @@ Do not use this Skill to find concurrency issues, suspicious bugs, performance p
 - Before defining a struct, confirm that it expresses a stable business concept, external contract, persistent state, or reused data shape.
 - If a shape is only used once to pass a few fields, assemble temporary parameters, or later overwrite fields, prefer explicit inputs, local variables, or direct construction of the target object.
 - Field meanings, sources, and lifecycles must be clear. Do not define structs with unclear boundaries.
+- Every exported struct must have a detailed comment that explains its business concept, purpose, boundary, lifecycle, or external contract.
+- Every field in an exported struct must have a clear comment that explains its meaning, source, unit, boundary, or usage limit.
+- Structs that are not part of the package API must not be capitalized/exported. Do not export a struct merely for cross-file use, test convenience, or perceived importance.
 
 ## Functions and Methods
 
