@@ -19,6 +19,7 @@ Skills:
   go-code-standards      English Go code standards skill
   go-code-standards-zh   Chinese Go code standards skill
   codex-development      Codex design/review/implementation workflow skill
+  code-risk-review       Code risk review workflow for changed files
 
 Examples:
   sync_skill.sh
