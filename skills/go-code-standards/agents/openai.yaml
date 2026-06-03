@@ -1,4 +1,4 @@
 interface:
-  display_name: "Go Code Standards"
-  short_description: "Enforce Google/Uber-inspired Go style"
-  default_prompt: "Use $go-code-standards to review and enforce Go code style in this repository."
+  display_name: "Go Style Standards"
+  short_description: "Review Go style and maintainability"
+  default_prompt: "Use $go-code-standards to review this Go code for style, readability, and maintainability."

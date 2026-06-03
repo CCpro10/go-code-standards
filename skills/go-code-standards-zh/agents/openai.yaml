@@ -1,4 +1,4 @@
 interface:
-  display_name: "Go 代码规范"
-  short_description: "强制约束 Go 代码风格和边界清晰度"
-  default_prompt: "Use $go-code-standards-zh to review and enforce Go code style in this repository."
+  display_name: "Go 风格规范"
+  short_description: "审查 Go 风格、可读性和可维护性"
+  default_prompt: "Use $go-code-standards-zh to review this Go code for style, readability, and maintainability."

@@ -10,9 +10,10 @@ The canonical skill list lives in `skills/manifest.tsv`; both installation and v
 
 | Skill | Purpose |
 | --- | --- |
-| `go-code-standards` | English Go code standards and enforcement workflow. |
-| `go-code-standards-zh` | Chinese Go code standards. This is the source of truth for project-specific Go rules. |
+| `go-code-standards` | English Go style, readability, and maintainability review. |
+| `go-code-standards-zh` | Chinese Go style review. This is the source of truth for project-specific style rules. |
 | `codex-development` | Codex development workflow: explore code, compare 2-3方案, run adversarial subAgent review, then implement. |
+| `code-risk-review` | Review changed code for bugs, concurrency, performance, logic, and runtime risks. |
 
 ## Migration From The Old Single-Skill Layout
 
@@ -30,6 +31,7 @@ Install a specific Skill:
 
 ```bash
 curl -fsSL https://raw.githubusercontent.com/CCpro10/go-code-standards/main/scripts/sync_skill.sh | bash -s -- --skill codex-development
+curl -fsSL https://raw.githubusercontent.com/CCpro10/go-code-standards/main/scripts/sync_skill.sh | bash -s -- --skill code-risk-review
 ```
 
 Install the Chinese Go standards Skill:
@@ -60,6 +62,7 @@ Default install paths:
 ${CODEX_HOME:-$HOME/.codex}/skills/go-code-standards
 ${CODEX_HOME:-$HOME/.codex}/skills/go-code-standards-zh
 ${CODEX_HOME:-$HOME/.codex}/skills/codex-development
+${CODEX_HOME:-$HOME/.codex}/skills/code-risk-review
 ```
 
 Re-run the same install command to update. Restart Codex after installing or updating so it can reload skills.
@@ -80,7 +83,7 @@ Auto-format and clean imports when supported:
 python3 ~/.codex/skills/go-code-standards/scripts/enforce_go_style.py --repo . --fix
 ```
 
-Strict mode requires recommended external tools such as `gofumpt`, `goimports`, and `golangci-lint`:
+Strict style mode requires recommended external style tools such as `gofumpt`, `goimports`, and `golangci-lint`:
 
 ```bash
 python3 ~/.codex/skills/go-code-standards/scripts/enforce_go_style.py --repo . --strict
@@ -88,9 +91,9 @@ python3 ~/.codex/skills/go-code-standards/scripts/enforce_go_style.py --repo . -
 
 ## Go Rule Priority
 
-The Chinese Go project rules are the source of truth:
+The Chinese Go style rules are the source of truth:
 
-1. `skills/go-code-standards-zh/references/project-rules.md`: highest-priority project rules taught by the user. These must be followed completely.
+1. `skills/go-code-standards-zh/references/project-rules.md`: highest-priority style and maintainability rules taught by the user. These must be followed completely.
 2. `skills/go-code-standards-zh/references/go-style-rules.md`: general Go style rules learned from Google Go Style and the Uber Go Style Guide.
 3. Repository-local conventions, only when they do not violate the two rule layers above.
 
@@ -109,6 +112,16 @@ English synchronized files:
 4. Synthesize the review and choose the方案.
 5. Execute scoped edits and verification.
 
+## Code Risk Review Skill
+
+`code-risk-review` reviews only concrete risks in the current diff or staged changes:
+
+1. Determine files from staged diff, `master...HEAD`, or current diff.
+2. Group changed files by directory/module.
+3. For small changes, roughly 3-5 files or fewer, review locally.
+4. For larger changes, split work across 2-5 subAgents by module.
+5. Main agent synthesizes findings, removes weak claims, and fixes real risks.
+
 ## Local Development
 
 Validate the repository:
@@ -121,6 +134,7 @@ Install from a local checkout for testing:
 
 ```bash
 GO_CODE_STANDARDS_REPO="$(pwd)" scripts/sync_skill.sh --skill codex-development
+GO_CODE_STANDARDS_REPO="$(pwd)" scripts/sync_skill.sh --skill code-risk-review
 GO_CODE_STANDARDS_REPO="$(pwd)" scripts/sync_skill.sh --all
 ```
 
