@@ -18,12 +18,13 @@ Default skill is go-code-standards.
 Skills:
   go-code-standards      English Go code standards skill
   go-code-standards-zh   Chinese Go code standards skill
-  codex-development      Codex design/review/implementation workflow skill
+  normal-feature-development
+                         Normal small feature development workflow skill
   code-risk-review       Code risk review workflow for changed files
 
 Examples:
   sync_skill.sh
-  sync_skill.sh --skill codex-development
+  sync_skill.sh --skill normal-feature-development
   sync_skill.sh --skill go-code-standards-zh
   sync_skill.sh --lang zh              # backwards-compatible alias for go-code-standards-zh
   sync_skill.sh --all
@@ -85,6 +86,10 @@ fi
 if [[ "${skill_set}" == "true" && "${lang_set}" == "true" ]]; then
   echo "--lang is a legacy alias for go-code-standards only and cannot be combined with --skill" >&2
   exit 2
+fi
+
+if [[ "${skill}" == "codex-development" ]]; then
+  skill="normal-feature-development"
 fi
 
 if ! command -v git >/dev/null 2>&1; then

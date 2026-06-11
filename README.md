@@ -12,7 +12,7 @@ The canonical skill list lives in `skills/manifest.tsv`; both installation and v
 | --- | --- |
 | `go-code-standards` | English Go style, readability, and maintainability review. |
 | `go-code-standards-zh` | Chinese Go style review. This is the source of truth for project-specific style rules. |
-| `codex-development` | Codex development workflow: explore code, compare 2-3方案, run adversarial subAgent review, then implement. |
+| `normal-feature-development` | Normal small feature workflow: explore code, choose a simple approach, implement, and verify without subAgents. |
 | `code-risk-review` | Review changed code for bugs, concurrency, performance, logic, and runtime risks. |
 
 ## Migration From The Old Single-Skill Layout
@@ -30,7 +30,7 @@ curl -fsSL https://raw.githubusercontent.com/CCpro10/go-code-standards/main/scri
 Install a specific Skill:
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/CCpro10/go-code-standards/main/scripts/sync_skill.sh | bash -s -- --skill codex-development
+curl -fsSL https://raw.githubusercontent.com/CCpro10/go-code-standards/main/scripts/sync_skill.sh | bash -s -- --skill normal-feature-development
 curl -fsSL https://raw.githubusercontent.com/CCpro10/go-code-standards/main/scripts/sync_skill.sh | bash -s -- --skill code-risk-review
 ```
 
@@ -61,7 +61,7 @@ Default install paths:
 ```text
 ${CODEX_HOME:-$HOME/.codex}/skills/go-code-standards
 ${CODEX_HOME:-$HOME/.codex}/skills/go-code-standards-zh
-${CODEX_HOME:-$HOME/.codex}/skills/codex-development
+${CODEX_HOME:-$HOME/.codex}/skills/normal-feature-development
 ${CODEX_HOME:-$HOME/.codex}/skills/code-risk-review
 ```
 
@@ -102,15 +102,15 @@ English synchronized files:
 - `skills/go-code-standards/references/project-rules.md`
 - `skills/go-code-standards/references/go-style-rules.md`
 
-## Codex Development Skill
+## Normal Feature Development Skill
 
-`codex-development` enforces a deliberate development workflow:
+`normal-feature-development` keeps ordinary implementation work direct:
 
 1. Explore the codebase before implementation.
-2. Present 2-3方案 with trade-offs and 2-3 hard points.
-3. Start a subAgent using `gpt-5.4-mini` with `xhigh` reasoning for adversarial方案 review.
-4. Synthesize the review and choose the方案.
-5. Execute scoped edits and verification.
+2. Choose the simplest workable approach; briefly compare options only when the implementation is not obvious.
+3. Execute scoped edits that follow existing patterns.
+4. Verify with checks appropriate to the touched surface.
+5. Report files changed, verification results, and skipped checks.
 
 ## Code Risk Review Skill
 
@@ -133,7 +133,7 @@ scripts/validate_repo.sh
 Install from a local checkout for testing:
 
 ```bash
-GO_CODE_STANDARDS_REPO="$(pwd)" scripts/sync_skill.sh --skill codex-development
+GO_CODE_STANDARDS_REPO="$(pwd)" scripts/sync_skill.sh --skill normal-feature-development
 GO_CODE_STANDARDS_REPO="$(pwd)" scripts/sync_skill.sh --skill code-risk-review
 GO_CODE_STANDARDS_REPO="$(pwd)" scripts/sync_skill.sh --all
 ```

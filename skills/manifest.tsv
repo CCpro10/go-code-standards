@@ -1,4 +1,4 @@
 go-code-standards	English Go style, readability, and maintainability review.
 go-code-standards-zh	Chinese Go style review and highest-priority style rules.
-codex-development	Codex development workflow with方案 comparison and adversarial subAgent review.
+normal-feature-development	Normal small feature development workflow without subAgents.
 code-risk-review	Review changed code for correctness, concurrency, performance, and logic risks.

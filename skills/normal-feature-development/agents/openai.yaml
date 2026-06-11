@@ -1,0 +1,4 @@
+interface:
+  display_name: "Normal Small Feature Development"
+  short_description: "Explore, implement, and verify small code changes"
+  default_prompt: "Use $normal-feature-development for this small code change."
