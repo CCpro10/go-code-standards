@@ -13,7 +13,7 @@ The canonical skill list lives in `skills/manifest.tsv`; both installation and v
 | `go-code-standards` | English Go style, readability, and maintainability review. |
 | `go-code-standards-zh` | Chinese Go style review. This is the source of truth for project-specific style rules. |
 | `normal-feature-development` | Normal small feature workflow: explore code, choose a simple approach, implement, and verify without subAgents. |
-| `code-risk-review` | Review changed code for bugs, concurrency, performance, logic, and runtime risks. |
+| `code-risk-review` | Review changed code for bugs, field/data anomalies, ignored errors, concurrency, performance, logic, and runtime risks. |
 
 ## Migration From The Old Single-Skill Layout
 

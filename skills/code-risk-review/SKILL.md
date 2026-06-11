@@ -1,6 +1,6 @@
 ---
 name: code-risk-review
-description: "Code risk review workflow for changed files. Use to inspect git diff or staged changes for risk items only: suspicious bugs, logic errors, concurrency problems, performance regressions, resource leaks, API contract issues, and other correctness risks. Splits large reviews across 2-5 subAgents by module, then synthesizes and fixes."
+description: "Code risk review workflow for changed files. Use to inspect git diff or staged changes for risk items only: suspicious bugs, field/data anomalies, ignored or swallowed errors, logic errors, concurrency problems, performance regressions, resource leaks, API contract issues, and other correctness risks. Splits large reviews across 2-5 subAgents by module, then synthesizes and fixes."
 ---
 
 # Code Risk Review
@@ -19,9 +19,13 @@ Use this Skill for risk review only. Do not comment on style, naming, formatting
 
 - Concurrency bugs, races, leaks, cancellation or timeout problems.
 - Suspicious bugs, nil/empty edge cases, wrong error handling, resource leaks.
+- Field/data anomalies: wrong source field, missing required field, accidental overwrite, dropped field in conversion, wrong enum/status/ID/timestamp/unit/currency, unsafe zero-value semantics, pointer/value/nil confusion, or incompatible JSON/protobuf/DB tags.
+- Ignored or swallowed errors: blank-identifier errors, unchecked returned errors, logging without propagation when callers need failure, fallback after failed parse/IO/RPC/DB operations, and unchecked `Close`, `Flush`, `Commit`, `Rollback`, `Scan`, `Encode`, `Decode`, `Marshal`, or `Unmarshal` errors when they can affect correctness.
 - Performance regressions, unnecessary fan-out, repeated heavy work, avoidable allocations.
 - Logic errors, state transitions, off-by-one, ordering, idempotency, contract violations.
 - API/data compatibility risks and security-sensitive mistakes.
+
+When diffs touch DTOs, protobuf/JSON structs, database models, request/response assembly, or conversion code, review field mappings field by field. Treat missing validation, silent defaulting, and inconsistent field semantics as risks only when they can change behavior or corrupt data.
 
 ## Output
 

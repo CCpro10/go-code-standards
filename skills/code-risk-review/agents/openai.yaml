@@ -1,4 +1,4 @@
 interface:
   display_name: "Code Risk Review"
-  short_description: "Review changed code for bugs and risk only"
-  default_prompt: "Use $code-risk-review to review the current diff for correctness and runtime risks."
+  short_description: "Review bugs, field anomalies, and ignored errors"
+  default_prompt: "Use $code-risk-review to review the current diff for correctness, field/data, and error-handling risks."
