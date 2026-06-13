@@ -22,10 +22,23 @@ Earlier versions exposed the Go standards Skill at the repository root. This rep
 
 ## Install Or Update
 
-Install the default Go standards Skill:
+Install the default Go standards Skill for Codex:
 
 ```bash
 curl -fsSL https://raw.githubusercontent.com/CCpro10/go-code-standards/main/scripts/sync_skill.sh | bash
+```
+
+Install for another agent:
+
+```bash
+# OpenAI Agent Skills standard path: ~/.agents/skills
+curl -fsSL https://raw.githubusercontent.com/CCpro10/go-code-standards/main/scripts/sync_skill.sh | bash -s -- --agent codex-standard
+
+# Claude Code personal skills path: ~/.claude/skills
+curl -fsSL https://raw.githubusercontent.com/CCpro10/go-code-standards/main/scripts/sync_skill.sh | bash -s -- --agent claude-code
+
+# Install to all supported local agents
+curl -fsSL https://raw.githubusercontent.com/CCpro10/go-code-standards/main/scripts/sync_skill.sh | bash -s -- --agent all
 ```
 
 Install a specific Skill:
@@ -34,6 +47,7 @@ Install a specific Skill:
 curl -fsSL https://raw.githubusercontent.com/CCpro10/go-code-standards/main/scripts/sync_skill.sh | bash -s -- --skill normal-feature-development
 curl -fsSL https://raw.githubusercontent.com/CCpro10/go-code-standards/main/scripts/sync_skill.sh | bash -s -- --skill spark-feature-development
 curl -fsSL https://raw.githubusercontent.com/CCpro10/go-code-standards/main/scripts/sync_skill.sh | bash -s -- --skill code-risk-review
+curl -fsSL https://raw.githubusercontent.com/CCpro10/go-code-standards/main/scripts/sync_skill.sh | bash -s -- --skill code-risk-review --agent claude-code
 ```
 
 Install the Chinese Go standards Skill:
@@ -46,6 +60,7 @@ Install all Skills:
 
 ```bash
 curl -fsSL https://raw.githubusercontent.com/CCpro10/go-code-standards/main/scripts/sync_skill.sh | bash -s -- --all
+curl -fsSL https://raw.githubusercontent.com/CCpro10/go-code-standards/main/scripts/sync_skill.sh | bash -s -- --all --agent claude-code
 ```
 
 Backward-compatible language aliases:
@@ -61,14 +76,12 @@ curl -fsSL https://raw.githubusercontent.com/CCpro10/go-code-standards/main/scri
 Default install paths:
 
 ```text
-${CODEX_HOME:-$HOME/.codex}/skills/go-code-standards
-${CODEX_HOME:-$HOME/.codex}/skills/go-code-standards-zh
-${CODEX_HOME:-$HOME/.codex}/skills/normal-feature-development
-${CODEX_HOME:-$HOME/.codex}/skills/spark-feature-development
-${CODEX_HOME:-$HOME/.codex}/skills/code-risk-review
+codex:          ${CODEX_HOME:-$HOME/.codex}/skills/<skill-name>
+codex-standard: ${AGENTS_HOME:-$HOME/.agents}/skills/<skill-name>
+claude-code:    ${CLAUDE_HOME:-$HOME/.claude}/skills/<skill-name>
 ```
 
-Re-run the same install command to update. Restart Codex after installing or updating so it can reload skills.
+Use `--target-root /path/to/skills` to install under a custom skills root, or `--target /path/to/skill` for a single exact destination. Re-run the same install command to update. Restart Codex or Claude Code after installing or updating if the agent does not detect changes live.
 
 Security note: this repository ships executable scripts. For a new environment, inspect `scripts/sync_skill.sh` before piping it to `bash`.
 
@@ -149,6 +162,8 @@ Install from a local checkout for testing:
 GO_CODE_STANDARDS_REPO="$(pwd)" scripts/sync_skill.sh --skill normal-feature-development
 GO_CODE_STANDARDS_REPO="$(pwd)" scripts/sync_skill.sh --skill spark-feature-development
 GO_CODE_STANDARDS_REPO="$(pwd)" scripts/sync_skill.sh --skill code-risk-review
+GO_CODE_STANDARDS_REPO="$(pwd)" scripts/sync_skill.sh --skill code-risk-review --agent claude-code
+GO_CODE_STANDARDS_REPO="$(pwd)" scripts/sync_skill.sh --all --agent all
 GO_CODE_STANDARDS_REPO="$(pwd)" scripts/sync_skill.sh --all
 ```
 

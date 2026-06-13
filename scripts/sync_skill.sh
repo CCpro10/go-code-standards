@@ -3,17 +3,25 @@ set -euo pipefail
 
 repo_url="${GO_CODE_STANDARDS_REPO:-https://github.com/CCpro10/go-code-standards.git}"
 skill="${GO_CODE_STANDARDS_SKILL:-go-code-standards}"
-target=""
+target="${GO_CODE_STANDARDS_TARGET:-}"
+target_root="${GO_CODE_STANDARDS_TARGET_ROOT:-}"
+agent="${GO_CODE_STANDARDS_AGENT:-codex}"
 install_all="false"
 skill_set="false"
 lang_set="false"
 
 usage() {
   cat <<'USAGE'
-Usage: sync_skill.sh [--skill NAME | --all] [--target /path/to/skill] [--lang en|zh]
+Usage: sync_skill.sh [--skill NAME | --all] [--agent codex|codex-standard|claude-code|all] [--target /path/to/skill] [--target-root /path/to/skills] [--lang en|zh]
 
-Installs or updates skills from this repository into the local Codex skills directory.
+Installs or updates skills from this repository into a local agent skills directory.
 Default skill is go-code-standards.
+
+Agents:
+  codex           Install to ${CODEX_HOME:-$HOME/.codex}/skills (legacy/current Codex app path)
+  codex-standard  Install to ${AGENTS_HOME:-$HOME/.agents}/skills (OpenAI Agent Skills standard path)
+  claude-code     Install to ${CLAUDE_HOME:-$HOME/.claude}/skills
+  all             Install to codex, codex-standard, and claude-code
 
 Skills:
   go-code-standards      English Go code standards skill
@@ -26,17 +34,26 @@ Skills:
 
 Examples:
   sync_skill.sh
+  sync_skill.sh --agent claude-code
+  sync_skill.sh --agent codex-standard --all
   sync_skill.sh --skill normal-feature-development
   sync_skill.sh --skill spark-feature-development
   sync_skill.sh --skill go-code-standards-zh
+  sync_skill.sh --skill code-risk-review --agent claude-code
+  sync_skill.sh --skill go-code-standards --target-root "$PWD/.agents/skills"
   sync_skill.sh --lang zh              # backwards-compatible alias for go-code-standards-zh
   sync_skill.sh --all
 
 Environment:
   GO_CODE_STANDARDS_REPO    Git repository URL. Defaults to the public GitHub repo.
   GO_CODE_STANDARDS_SKILL   Skill name to install.
+  GO_CODE_STANDARDS_AGENT   Agent target: codex, codex-standard, claude-code, or all.
   GO_CODE_STANDARDS_TARGET  Install target for a single skill.
+  GO_CODE_STANDARDS_TARGET_ROOT
+                            Install root containing skill directories.
   CODEX_HOME                Codex home. Defaults to "$HOME/.codex".
+  AGENTS_HOME               Agent Skills standard home. Defaults to "$HOME/.agents".
+  CLAUDE_HOME               Claude Code home. Defaults to "$HOME/.claude".
 USAGE
 }
 
@@ -53,6 +70,14 @@ while [[ $# -gt 0 ]]; do
       ;;
     --target)
       target="${2:-}"
+      shift 2
+      ;;
+    --target-root)
+      target_root="${2:-}"
+      shift 2
+      ;;
+    --agent)
+      agent="${2:-}"
       shift 2
       ;;
     --lang)
@@ -91,6 +116,31 @@ if [[ "${skill_set}" == "true" && "${lang_set}" == "true" ]]; then
   exit 2
 fi
 
+case "${agent}" in
+  codex|codex-standard|claude-code|all) ;;
+  *) echo "--agent must be codex, codex-standard, claude-code, or all" >&2; exit 2 ;;
+esac
+
+if [[ "${agent}" == "all" && -n "${target}" ]]; then
+  echo "--target cannot be used with --agent all" >&2
+  exit 2
+fi
+
+if [[ "${agent}" == "all" && -n "${target_root}" ]]; then
+  echo "--target-root cannot be used with --agent all" >&2
+  exit 2
+fi
+
+if [[ -n "${target}" && -n "${target_root}" ]]; then
+  echo "--target cannot be combined with --target-root" >&2
+  exit 2
+fi
+
+if [[ "${install_all}" == "true" && -n "${target}" ]]; then
+  echo "--target cannot be used with --all" >&2
+  exit 2
+fi
+
 if [[ "${skill}" == "codex-development" ]]; then
   skill="normal-feature-development"
 fi
@@ -100,7 +150,6 @@ if ! command -v git >/dev/null 2>&1; then
   exit 2
 fi
 
-skills_root="${CODEX_HOME:-${HOME}/.codex}/skills"
 tmp="$(mktemp -d)"
 trap 'rm -rf "${tmp}"' EXIT
 
@@ -121,10 +170,28 @@ list_skills() {
   cut -f 1 "${manifest}" | sort
 }
 
+skill_root_for_agent() {
+  case "$1" in
+    codex) echo "${CODEX_HOME:-${HOME}/.codex}/skills" ;;
+    codex-standard) echo "${AGENTS_HOME:-${HOME}/.agents}/skills" ;;
+    claude-code) echo "${CLAUDE_HOME:-${HOME}/.claude}/skills" ;;
+    *) echo "unknown agent: $1" >&2; exit 2 ;;
+  esac
+}
+
+agent_list() {
+  if [[ "${agent}" == "all" ]]; then
+    printf '%s\n' codex codex-standard claude-code
+  else
+    printf '%s\n' "${agent}"
+  fi
+}
+
 install_skill() {
   local name="$1"
+  local root="$2"
+  local dest="${3:-${root}/${name}}"
   local source="${tmp}/repo/skills/${name}"
-  local dest="${2:-${skills_root}/${name}}"
 
   if ! skill_exists "${name}" || [[ ! -f "${source}/SKILL.md" ]]; then
     echo "unknown skill: ${name}" >&2
@@ -142,19 +209,19 @@ install_skill() {
   echo "installed ${name} at ${dest}"
 }
 
-if [[ "${install_all}" == "true" ]]; then
-  if [[ -n "${target}" ]]; then
-    echo "--target cannot be used with --all" >&2
-    exit 2
+while IFS= read -r selected_agent; do
+  skills_root="${target_root:-$(skill_root_for_agent "${selected_agent}")}"
+  if [[ "${install_all}" == "true" ]]; then
+    while IFS=$'\t' read -r skill_name _; do
+      [[ -z "${skill_name}" ]] && continue
+      install_skill "${skill_name}" "${skills_root}"
+    done < "${manifest}"
+    continue
   fi
-  while IFS=$'\t' read -r skill_name _; do
-    [[ -z "${skill_name}" ]] && continue
-    install_skill "${skill_name}"
-  done < "${manifest}"
-else
+
   if [[ -z "${skill}" ]]; then
     echo "--skill requires a value" >&2
     exit 2
   fi
-  install_skill "${skill}" "${target:-${skills_root}/${skill}}"
-fi
+  install_skill "${skill}" "${skills_root}" "${target:-}"
+done < <(agent_list)
