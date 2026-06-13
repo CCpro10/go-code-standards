@@ -12,16 +12,16 @@ lang_set="false"
 
 usage() {
   cat <<'USAGE'
-Usage: sync_skill.sh [--skill NAME | --all] [--agent codex|codex-standard|claude-code|all] [--target /path/to/skill] [--target-root /path/to/skills] [--lang en|zh]
+Usage: sync_skill.sh [--skill NAME | --all] [--agent codex|claude-code|all] [--target /path/to/skill] [--target-root /path/to/skills] [--lang en|zh]
 
 Installs or updates skills from this repository into a local agent skills directory.
 Default skill is go-code-standards.
 
 Agents:
-  codex           Install to ${CODEX_HOME:-$HOME/.codex}/skills (legacy/current Codex app path)
-  codex-standard  Install to ${AGENTS_HOME:-$HOME/.agents}/skills (OpenAI Agent Skills standard path)
+  codex           Install to both Codex locations:
+                  ${CODEX_HOME:-$HOME/.codex}/skills and ${AGENTS_HOME:-$HOME/.agents}/skills
   claude-code     Install to ${CLAUDE_HOME:-$HOME/.claude}/skills
-  all             Install to codex, codex-standard, and claude-code
+  all             Install to codex and claude-code
 
 Skills:
   go-code-standards      English Go code standards skill
@@ -35,7 +35,6 @@ Skills:
 Examples:
   sync_skill.sh
   sync_skill.sh --agent claude-code
-  sync_skill.sh --agent codex-standard --all
   sync_skill.sh --skill normal-feature-development
   sync_skill.sh --skill spark-feature-development
   sync_skill.sh --skill go-code-standards-zh
@@ -47,7 +46,7 @@ Examples:
 Environment:
   GO_CODE_STANDARDS_REPO    Git repository URL. Defaults to the public GitHub repo.
   GO_CODE_STANDARDS_SKILL   Skill name to install.
-  GO_CODE_STANDARDS_AGENT   Agent target: codex, codex-standard, claude-code, or all.
+  GO_CODE_STANDARDS_AGENT   Agent target: codex, claude-code, or all.
   GO_CODE_STANDARDS_TARGET  Install target for a single skill.
   GO_CODE_STANDARDS_TARGET_ROOT
                             Install root containing skill directories.
@@ -117,8 +116,8 @@ if [[ "${skill_set}" == "true" && "${lang_set}" == "true" ]]; then
 fi
 
 case "${agent}" in
-  codex|codex-standard|claude-code|all) ;;
-  *) echo "--agent must be codex, codex-standard, claude-code, or all" >&2; exit 2 ;;
+  codex|claude-code|all) ;;
+  *) echo "--agent must be codex, claude-code, or all" >&2; exit 2 ;;
 esac
 
 if [[ "${agent}" == "all" && -n "${target}" ]]; then
@@ -170,10 +169,12 @@ list_skills() {
   cut -f 1 "${manifest}" | sort
 }
 
-skill_root_for_agent() {
+skill_roots_for_agent() {
   case "$1" in
-    codex) echo "${CODEX_HOME:-${HOME}/.codex}/skills" ;;
-    codex-standard) echo "${AGENTS_HOME:-${HOME}/.agents}/skills" ;;
+    codex)
+      printf '%s\n' "${CODEX_HOME:-${HOME}/.codex}/skills"
+      printf '%s\n' "${AGENTS_HOME:-${HOME}/.agents}/skills"
+      ;;
     claude-code) echo "${CLAUDE_HOME:-${HOME}/.claude}/skills" ;;
     *) echo "unknown agent: $1" >&2; exit 2 ;;
   esac
@@ -181,7 +182,7 @@ skill_root_for_agent() {
 
 agent_list() {
   if [[ "${agent}" == "all" ]]; then
-    printf '%s\n' codex codex-standard claude-code
+    printf '%s\n' codex claude-code
   else
     printf '%s\n' "${agent}"
   fi
@@ -209,8 +210,8 @@ install_skill() {
   echo "installed ${name} at ${dest}"
 }
 
-while IFS= read -r selected_agent; do
-  skills_root="${target_root:-$(skill_root_for_agent "${selected_agent}")}"
+install_selection_into_root() {
+  local skills_root="$1"
   if [[ "${install_all}" == "true" ]]; then
     while IFS=$'\t' read -r skill_name _; do
       [[ -z "${skill_name}" ]] && continue
@@ -224,4 +225,16 @@ while IFS= read -r selected_agent; do
     exit 2
   fi
   install_skill "${skill}" "${skills_root}" "${target:-}"
+}
+
+while IFS= read -r selected_agent; do
+  if [[ -n "${target_root}" ]]; then
+    install_selection_into_root "${target_root}"
+    continue
+  fi
+
+  while IFS= read -r skills_root; do
+    [[ -z "${skills_root}" ]] && continue
+    install_selection_into_root "${skills_root}"
+  done < <(skill_roots_for_agent "${selected_agent}")
 done < <(agent_list)

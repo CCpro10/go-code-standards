@@ -31,9 +31,6 @@ curl -fsSL https://raw.githubusercontent.com/CCpro10/go-code-standards/main/scri
 Install for another agent:
 
 ```bash
-# OpenAI Agent Skills standard path: ~/.agents/skills
-curl -fsSL https://raw.githubusercontent.com/CCpro10/go-code-standards/main/scripts/sync_skill.sh | bash -s -- --agent codex-standard
-
 # Claude Code personal skills path: ~/.claude/skills
 curl -fsSL https://raw.githubusercontent.com/CCpro10/go-code-standards/main/scripts/sync_skill.sh | bash -s -- --agent claude-code
 
@@ -76,12 +73,12 @@ curl -fsSL https://raw.githubusercontent.com/CCpro10/go-code-standards/main/scri
 Default install paths:
 
 ```text
-codex:          ${CODEX_HOME:-$HOME/.codex}/skills/<skill-name>
-codex-standard: ${AGENTS_HOME:-$HOME/.agents}/skills/<skill-name>
-claude-code:    ${CLAUDE_HOME:-$HOME/.claude}/skills/<skill-name>
+codex:       ${CODEX_HOME:-$HOME/.codex}/skills/<skill-name>
+             ${AGENTS_HOME:-$HOME/.agents}/skills/<skill-name>
+claude-code: ${CLAUDE_HOME:-$HOME/.claude}/skills/<skill-name>
 ```
 
-Use `--target-root /path/to/skills` to install under a custom skills root, or `--target /path/to/skill` for a single exact destination. Re-run the same install command to update. Restart Codex or Claude Code after installing or updating if the agent does not detect changes live.
+`--agent codex` installs to both Codex-related locations: the current compatibility path used by this Codex app (`~/.codex/skills`) and the OpenAI Agent Skills user path from the official docs (`~/.agents/skills`). Use `--target-root /path/to/skills` to install under one custom skills root, or `--target /path/to/skill` for a single exact destination. Re-run the same install command to update. Restart Codex or Claude Code after installing or updating if the agent does not detect changes live.
 
 Security note: this repository ships executable scripts. For a new environment, inspect `scripts/sync_skill.sh` before piping it to `bash`.
 
