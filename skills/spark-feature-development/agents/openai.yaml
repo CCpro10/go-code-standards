@@ -1,0 +1,4 @@
+interface:
+  display_name: "Spark Feature Development"
+  short_description: "Plan changes, delegate coding to Spark, then review"
+  default_prompt: "Use $spark-feature-development to plan this change, have Spark implement it, then review and polish."

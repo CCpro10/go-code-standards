@@ -13,6 +13,7 @@ The canonical skill list lives in `skills/manifest.tsv`; both installation and v
 | `go-code-standards` | English Go style, readability, and maintainability review. |
 | `go-code-standards-zh` | Chinese Go style review. This is the source of truth for project-specific style rules. |
 | `normal-feature-development` | Normal small feature workflow: explore code, choose a simple approach, implement, and verify without subAgents. |
+| `spark-feature-development` | Spark-assisted feature workflow: summarize change points, delegate implementation to Spark, then review and polish. |
 | `code-risk-review` | Review changed code for bugs, field/data anomalies, ignored errors, concurrency, performance, logic, and runtime risks. |
 
 ## Migration From The Old Single-Skill Layout
@@ -31,6 +32,7 @@ Install a specific Skill:
 
 ```bash
 curl -fsSL https://raw.githubusercontent.com/CCpro10/go-code-standards/main/scripts/sync_skill.sh | bash -s -- --skill normal-feature-development
+curl -fsSL https://raw.githubusercontent.com/CCpro10/go-code-standards/main/scripts/sync_skill.sh | bash -s -- --skill spark-feature-development
 curl -fsSL https://raw.githubusercontent.com/CCpro10/go-code-standards/main/scripts/sync_skill.sh | bash -s -- --skill code-risk-review
 ```
 
@@ -62,6 +64,7 @@ Default install paths:
 ${CODEX_HOME:-$HOME/.codex}/skills/go-code-standards
 ${CODEX_HOME:-$HOME/.codex}/skills/go-code-standards-zh
 ${CODEX_HOME:-$HOME/.codex}/skills/normal-feature-development
+${CODEX_HOME:-$HOME/.codex}/skills/spark-feature-development
 ${CODEX_HOME:-$HOME/.codex}/skills/code-risk-review
 ```
 
@@ -102,7 +105,7 @@ English synchronized files:
 - `skills/go-code-standards/references/project-rules.md`
 - `skills/go-code-standards/references/go-style-rules.md`
 
-## Normal Feature Development Skill
+## Normal Small Feature Development Skill
 
 `normal-feature-development` keeps ordinary implementation work direct:
 
@@ -111,6 +114,15 @@ English synchronized files:
 3. Execute scoped edits that follow existing patterns.
 4. Verify with checks appropriate to the touched surface.
 5. Report files changed, verification results, and skipped checks.
+
+## Spark Feature Development Skill
+
+`spark-feature-development` delegates the first implementation pass to Spark:
+
+1. Explore the codebase and summarize concrete change points.
+2. Start one subAgent with model `5.3-codex-spark` and reasoning `high`.
+3. Have the subAgent implement the scoped change and report checks.
+4. Main agent reviews the diff, adjusts the code, and runs final verification.
 
 ## Code Risk Review Skill
 
@@ -134,6 +146,7 @@ Install from a local checkout for testing:
 
 ```bash
 GO_CODE_STANDARDS_REPO="$(pwd)" scripts/sync_skill.sh --skill normal-feature-development
+GO_CODE_STANDARDS_REPO="$(pwd)" scripts/sync_skill.sh --skill spark-feature-development
 GO_CODE_STANDARDS_REPO="$(pwd)" scripts/sync_skill.sh --skill code-risk-review
 GO_CODE_STANDARDS_REPO="$(pwd)" scripts/sync_skill.sh --all
 ```

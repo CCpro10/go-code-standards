@@ -1,4 +1,5 @@
 go-code-standards	English Go style, readability, and maintainability review.
 go-code-standards-zh	Chinese Go style review and highest-priority style rules.
 normal-feature-development	Normal small feature development workflow without subAgents.
+spark-feature-development	Spark-assisted feature development workflow with delegated implementation and main-agent review.
 code-risk-review	Review changed code for correctness, field/data, error-handling, concurrency, performance, and logic risks.

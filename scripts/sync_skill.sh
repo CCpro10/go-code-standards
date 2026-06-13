@@ -20,11 +20,14 @@ Skills:
   go-code-standards-zh   Chinese Go code standards skill
   normal-feature-development
                          Normal small feature development workflow skill
+  spark-feature-development
+                         Spark-assisted feature development workflow skill
   code-risk-review       Code risk review workflow for changed files
 
 Examples:
   sync_skill.sh
   sync_skill.sh --skill normal-feature-development
+  sync_skill.sh --skill spark-feature-development
   sync_skill.sh --skill go-code-standards-zh
   sync_skill.sh --lang zh              # backwards-compatible alias for go-code-standards-zh
   sync_skill.sh --all
