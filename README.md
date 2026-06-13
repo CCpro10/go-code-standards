@@ -121,8 +121,9 @@ English synchronized files:
 
 1. Explore the codebase and summarize concrete change points.
 2. Start one subAgent with model `5.3-codex-spark` and reasoning `high`.
-3. Have the subAgent implement the scoped change and report checks.
-4. Main agent reviews the diff, adjusts the code, and runs final verification.
+3. Do not fork full context; pass the required repo path, constraints, change points, scope, and verification target in the subAgent task.
+4. Have the subAgent implement the scoped change and report checks.
+5. Main agent reviews the diff, adjusts the code, and runs final verification.
 
 ## Code Risk Review Skill
 
