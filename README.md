@@ -117,13 +117,14 @@ English synchronized files:
 
 ## Normal Small Feature Development Skill
 
-`normal-feature-development` keeps ordinary implementation work direct:
+`normal-feature-development` keeps ordinary implementation work direct while leaving the方案 decision to the user:
 
 1. Explore the codebase before implementation.
-2. Choose the simplest workable approach; briefly compare options only when the implementation is not obvious.
-3. Execute scoped edits that follow existing patterns.
-4. Verify with checks appropriate to the touched surface.
-5. Report files changed, verification results, and skipped checks.
+2. Present 2-3方案 with scope, trade-offs, hard points, and key decision points.
+3. Wait for the user to choose or approve a方案 before editing files.
+4. Execute scoped edits that follow existing patterns.
+5. Verify with checks appropriate to the touched surface.
+6. Report the chosen方案, files changed, verification results, and skipped checks.
 
 ## Spark Feature Development Skill
 

@@ -1,4 +1,4 @@
 interface:
   display_name: "Normal Small Feature Development"
-  short_description: "Explore, implement, and verify small code changes"
-  default_prompt: "Use $normal-feature-development for this small code change."
+  short_description: "Explore, present options, then implement after approval"
+  default_prompt: "Use $normal-feature-development to explore this change, present方案 options for my decision, then implement after approval."
