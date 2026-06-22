@@ -32,7 +32,7 @@ python3 /path/to/go-code-standards/scripts/enforce_go_style.py --repo . --fix
 
 - Directory depth and package responsibility.
 - Whether structs are necessary and clear, without excessive intermediate types; whether exported structs and their fields have clear comments.
-- Whether functions and methods are split reasonably, without too many one-off helpers.
+- Whether functions and methods are split reasonably, without too many one-off helpers, meaningless wrapper functions, or function aliases.
 - Whether the most important exported functions are first and unexported functions are last.
 - Whether comments add information and names reveal real behavior.
 - Whether local variable timing, struct construction, blank lines, and line breaks improve readability.
