@@ -52,6 +52,8 @@ Do not use this Skill to find concurrency issues, suspicious bugs, performance p
 - Names must reveal what code actually does. Avoid using `normalizeXxx` to hide trimming, filtering, deduplication, defaulting, and reshaping in one vague operation.
 - If parsing, deduplication, validation, or conversion is required, name the function after the real action, such as `parseXxx`, `dedupeXxx`, or `validateXxx`.
 - Business objects should be constructed from explicit input. Do not create a “default business object” and then overwrite it into a different meaning through branches.
+- Do not add meaningless fallback or normalization for internal engineering parameters inside business flow, such as `normalizeAudioParseSyncTimeout` silently replacing invalid timeout, poll interval, or retry limit values with defaults or caps. Internal configuration must be decided and validated once at construction, startup, or config-loading boundaries. If internal code passes an invalid value, expose a clear error or fix the call site instead of adding fallback logic on every execution path.
+- Defaults are allowed only at explicit boundaries: external request parsing, config loading, compatibility adapters, or constructors. The default source, scope, and limit must be obvious. Do not hide defaults inside deep helpers, service methods, or repeated loop paths.
 
 ## Pointer Helpers
 

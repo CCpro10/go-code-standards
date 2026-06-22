@@ -35,6 +35,7 @@ python3 /path/to/go-code-standards-zh/scripts/enforce_go_style.py --repo . --fix
 - 函数和方法拆分是否合理，是否过度抽小函数，是否存在无意义单函数套壳或函数别名。
 - package 内最重要的可导出函数是否在前，不可导出函数是否在后。
 - 注释是否有信息量，命名是否表达真实行为。
+- 是否存在隐藏默认值、内部工程参数兜底、深层 `normalizeXxx` 掩盖非法状态。
 - 局部变量声明、结构体构造、空行和换行是否让主流程更易读。
 
 先读 `references/project-rules.md`，再读 `references/go-style-rules.md`。
