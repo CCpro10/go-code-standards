@@ -14,6 +14,7 @@ Do not use this Skill to find concurrency issues, suspicious bugs, performance p
 
 - Directory levels should express business modules and responsibility boundaries. Do not create directories around temporary implementation details, helper buckets, or overly deep technical layers.
 - Package names should be short, lowercase, and meaningful. Avoid names such as `util`, `common`, and `misc` that do not express responsibility.
+- Splitting files, moving directories, or splitting packages is a heavy structural change. During review, point out files with unfocused responsibilities or too many topics and suggest possible responsibility-based split directions, but do not perform file splitting or code moves without explicit user confirmation.
 - In each package, the most important exported functions and methods should appear first, then other exported functions and methods, then unexported functions and methods.
 - Treat the first unexported function or method as the start of the private section; do not place uppercase function or method names after it.
 - Do not mark non-API functions as exported. Do not capitalize a function merely for cross-file calls, test convenience, or perceived importance.
@@ -33,7 +34,7 @@ Do not use this Skill to find concurrency issues, suspicious bugs, performance p
 - Function and method placement must be reasonable. A method should express receiver behavior or state change; if it has no real relationship with the receiver, prefer a plain function.
 - Good code is short and direct first. If a small amount of sequential code is clear, do not split it into many one-off helpers.
 - Do not extract helper functions for logic used only once. Extract only when a function reduces complexity, expresses a clear business concept, or is reused.
-- Do not cut code into too many small functions. Prefer splitting files by responsibility, then keep a small number of meaningful functions.
+- Do not cut code into too many small functions. You may suggest splitting files by responsibility, but do not split files or move code before the user explicitly confirms.
 - Avoid wrapper functions that only call one other function with the same arguments and directly return its result. They add call-stack depth and navigation cost without adding meaning. Keep such a wrapper only when it defines a stable API boundary, adapts an interface, adds validation, logging, error context, or real semantic conversion.
 - Do not create meaningless function aliases such as `var afunc = packageb.Bfunc` or `var afunc = bfunc`. If the goal is only a shorter name, call the original function or use an import alias. If a new API boundary is truly needed, write a real commented function that adds semantic value.
 - Function code must include informative comments. Simple functions should explain business intent, input boundaries, or return semantics; complex functions should explain key branches, state changes, or constraints.

@@ -30,7 +30,7 @@ python3 /path/to/go-code-standards/scripts/enforce_go_style.py --repo . --fix
 
 ## Review Scope
 
-- Directory depth and package responsibility.
+- Directory depth and package responsibility; suggest file or directory splits only, without performing heavy moves before user confirmation.
 - Whether structs are necessary and clear, without excessive intermediate types; whether exported structs and their fields have clear comments.
 - Whether functions and methods are split reasonably, without too many one-off helpers, meaningless wrapper functions, or function aliases.
 - Whether the most important exported functions are first and unexported functions are last.
