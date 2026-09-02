@@ -39,6 +39,9 @@ Do not use this Skill to find concurrency issues, suspicious bugs, performance p
 - Do not keep meaningless pass-through functions, such as a `parsePositiveIDStringParam` wrapper that only forwards the same arguments to another function and directly returns its result. If a wrapper adds no business meaning, boundary validation, error context, or interface adaptation, inline the wrapped call or rename the underlying function instead of adding another layer for a more specific-looking name.
 - Do not create meaningless function aliases such as `var afunc = packageb.Bfunc` or `var afunc = bfunc`. If the goal is only a shorter name, call the original function or use an import alias. If a new API boundary is truly needed, write a real commented function that adds semantic value.
 - Function code must include informative comments. Simple functions should explain business intent, input boundaries, or return semantics; complex functions should explain key branches, state changes, or constraints.
+- Function comments should describe the actual execution process, including the order of key steps, selection conditions, and what happens when a condition does not match. Do not stop at an abstract summary such as “process according to a strategy” when readers would still need to inspect the body to learn the behavior.
+- Bad: `// resolveSpecifiedTitle parses the specified title from two entry points according to custom-creation priority.`
+- Good: `// resolveSpecifiedTitle first tries the advanced-creation title; if none is found, it uses the inspiration-creation title.`
 - Comments must not merely restate code. Avoid comments such as “assign value” or “call method”.
 
 ## Local Readability
