@@ -32,6 +32,7 @@ Do not use this Skill to find concurrency issues, suspicious bugs, performance p
 ## Functions and Methods
 
 - Function and method placement must be reasonable. A method should express receiver behavior or state change; if it has no real relationship with the receiver, prefer a plain function.
+- Handle failure paths first and return early, then continue with the normal flow. Put nil arguments, invalid input, missing dependencies, `err != nil`, and similar failure conditions before the main path instead of nesting normal business logic inside multiple branches.
 - Good code is short and direct first. If a small amount of sequential code is clear, do not split it into many one-off helpers.
 - Do not extract helper functions for logic used only once. Extract only when a function reduces complexity, expresses a clear business concept, or is reused.
 - Do not cut code into too many small functions. You may suggest splitting files by responsibility, but do not split files or move code before the user explicitly confirms.
@@ -50,6 +51,8 @@ Do not use this Skill to find concurrency issues, suspicious bugs, performance p
 
 ## Naming and Boundary Expression
 
+- Function names must state their responsibility directly. A reader should be able to infer the object being handled, the action performed, and the result or side effect from the name.
+- Avoid vague names such as `handleXxx`, `processXxx`, `doXxx`, and `runXxx` unless an interface or the immediate context already makes the exact responsibility unambiguous.
 - Names must reveal what code actually does. Avoid using `normalizeXxx` to hide trimming, filtering, deduplication, defaulting, and reshaping in one vague operation.
 - If parsing, deduplication, validation, or conversion is required, name the function after the real action, such as `parseXxx`, `dedupeXxx`, or `validateXxx`.
 - Do not create meaningless constant aliases such as `taskQueryStatePending = SongResultStatePending`. If two names represent the same state, enum value, or business concept, use the original constant directly. Do not introduce an equal-value constant merely for local naming, call convenience, or superficial layering.
