@@ -14,6 +14,7 @@ The canonical skill list lives in `skills/manifest.tsv`; both installation and v
 | `go-code-standards-zh` | Chinese Go style review. This is the source of truth for project-specific style rules. |
 | `normal-feature-development` | Normal small feature workflow: explore code, choose a simple approach, implement, and verify without subAgents. |
 | `spark-feature-development` | Spark-assisted feature workflow: summarize change points, delegate implementation to Spark, then review and polish. |
+| `luna-feature-development` | Token-efficient workflow: pass focused context to one Luna subAgent, then review and finish in the main agent. |
 | `code-risk-review` | Review changed code for bugs, field/data anomalies, ignored errors, concurrency, performance, logic, and runtime risks. |
 
 ## Migration From The Old Single-Skill Layout
@@ -43,6 +44,7 @@ Install a specific Skill:
 ```bash
 curl -fsSL https://raw.githubusercontent.com/CCpro10/go-code-standards/main/scripts/sync_skill.sh | bash -s -- --skill normal-feature-development
 curl -fsSL https://raw.githubusercontent.com/CCpro10/go-code-standards/main/scripts/sync_skill.sh | bash -s -- --skill spark-feature-development
+curl -fsSL https://raw.githubusercontent.com/CCpro10/go-code-standards/main/scripts/sync_skill.sh | bash -s -- --skill luna-feature-development
 curl -fsSL https://raw.githubusercontent.com/CCpro10/go-code-standards/main/scripts/sync_skill.sh | bash -s -- --skill code-risk-review
 curl -fsSL https://raw.githubusercontent.com/CCpro10/go-code-standards/main/scripts/sync_skill.sh | bash -s -- --skill code-risk-review --agent claude-code
 ```
@@ -135,6 +137,15 @@ English synchronized files:
 4. Have the subAgent implement the scoped change and report checks.
 5. Main agent reviews the diff, adjusts the code, and runs final verification.
 
+## Luna Feature Development Skill
+
+`luna-feature-development` reduces delegated context while keeping final ownership in the main agent:
+
+1. Explore the codebase and summarize only the required change points.
+2. Start one `gpt-5.6-luna` subAgent with reasoning `medium`.
+3. Do not fork the parent context; send a compact prompt containing the repo path, constraints, scope, and verification targets.
+4. Main agent reviews the diff, fixes omissions, and runs final checks.
+
 ## Code Risk Review Skill
 
 `code-risk-review` reviews only concrete risks in the current diff or staged changes:
@@ -158,6 +169,7 @@ Install from a local checkout for testing:
 ```bash
 GO_CODE_STANDARDS_REPO="$(pwd)" scripts/sync_skill.sh --skill normal-feature-development
 GO_CODE_STANDARDS_REPO="$(pwd)" scripts/sync_skill.sh --skill spark-feature-development
+GO_CODE_STANDARDS_REPO="$(pwd)" scripts/sync_skill.sh --skill luna-feature-development
 GO_CODE_STANDARDS_REPO="$(pwd)" scripts/sync_skill.sh --skill code-risk-review
 GO_CODE_STANDARDS_REPO="$(pwd)" scripts/sync_skill.sh --skill code-risk-review --agent claude-code
 GO_CODE_STANDARDS_REPO="$(pwd)" scripts/sync_skill.sh --all --agent all

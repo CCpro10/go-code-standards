@@ -1,0 +1,6 @@
+interface:
+  display_name: "Luna Feature Development"
+  short_description: "Delegate a focused coding pass to Luna"
+  default_prompt: "Use $luna-feature-development to scope this change, delegate a focused implementation to Luna, then review and finish it."
+policy:
+  allow_implicit_invocation: false

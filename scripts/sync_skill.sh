@@ -30,6 +30,8 @@ Skills:
                          Normal small feature development workflow skill
   spark-feature-development
                          Spark-assisted feature development workflow skill
+  luna-feature-development
+                         Token-efficient Luna-assisted development workflow skill
   code-risk-review       Code risk review workflow for changed files
 
 Examples:
@@ -37,6 +39,7 @@ Examples:
   sync_skill.sh --agent claude-code
   sync_skill.sh --skill normal-feature-development
   sync_skill.sh --skill spark-feature-development
+  sync_skill.sh --skill luna-feature-development
   sync_skill.sh --skill go-code-standards-zh
   sync_skill.sh --skill code-risk-review --agent claude-code
   sync_skill.sh --skill go-code-standards --target-root "$PWD/.agents/skills"
