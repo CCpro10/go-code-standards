@@ -18,8 +18,8 @@ Installs or updates skills from this repository into a local agent skills direct
 Default skill is go-code-standards.
 
 Agents:
-  codex           Install to both Codex locations:
-                  ${CODEX_HOME:-$HOME/.codex}/skills and ${AGENTS_HOME:-$HOME/.agents}/skills
+  codex           Install to the Agent Skills user directory:
+                  ${AGENTS_HOME:-$HOME/.agents}/skills
   claude-code     Install to ${CLAUDE_HOME:-$HOME/.claude}/skills
   all             Install to codex and claude-code
 
@@ -50,7 +50,6 @@ Environment:
   GO_CODE_STANDARDS_TARGET  Install target for a single skill.
   GO_CODE_STANDARDS_TARGET_ROOT
                             Install root containing skill directories.
-  CODEX_HOME                Codex home. Defaults to "$HOME/.codex".
   AGENTS_HOME               Agent Skills standard home. Defaults to "$HOME/.agents".
   CLAUDE_HOME               Claude Code home. Defaults to "$HOME/.claude".
 USAGE
@@ -171,10 +170,7 @@ list_skills() {
 
 skill_roots_for_agent() {
   case "$1" in
-    codex)
-      printf '%s\n' "${CODEX_HOME:-${HOME}/.codex}/skills"
-      printf '%s\n' "${AGENTS_HOME:-${HOME}/.agents}/skills"
-      ;;
+    codex) echo "${AGENTS_HOME:-${HOME}/.agents}/skills" ;;
     claude-code) echo "${CLAUDE_HOME:-${HOME}/.claude}/skills" ;;
     *) echo "unknown agent: $1" >&2; exit 2 ;;
   esac

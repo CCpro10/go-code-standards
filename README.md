@@ -73,12 +73,11 @@ curl -fsSL https://raw.githubusercontent.com/CCpro10/go-code-standards/main/scri
 Default install paths:
 
 ```text
-codex:       ${CODEX_HOME:-$HOME/.codex}/skills/<skill-name>
-             ${AGENTS_HOME:-$HOME/.agents}/skills/<skill-name>
+codex:       ${AGENTS_HOME:-$HOME/.agents}/skills/<skill-name>
 claude-code: ${CLAUDE_HOME:-$HOME/.claude}/skills/<skill-name>
 ```
 
-`--agent codex` installs to both Codex-related locations: the current compatibility path used by this Codex app (`~/.codex/skills`) and the OpenAI Agent Skills user path from the official docs (`~/.agents/skills`). Use `--target-root /path/to/skills` to install under one custom skills root, or `--target /path/to/skill` for a single exact destination. Re-run the same install command to update. Restart Codex or Claude Code after installing or updating if the agent does not detect changes live.
+`--agent codex` installs to the Agent Skills user directory (`~/.agents/skills`). The `~/.codex/skills/.system` directory is managed by Codex and is not a user Skill install target. Use `--target-root /path/to/skills` to install under one custom skills root, or `--target /path/to/skill` for a single exact destination. Re-run the same install command to update. Restart Codex or Claude Code after installing or updating if the agent does not detect changes live.
 
 Security note: this repository ships executable scripts. For a new environment, inspect `scripts/sync_skill.sh` before piping it to `bash`.
 
@@ -87,19 +86,19 @@ Security note: this repository ships executable scripts. For a new environment, 
 Run from a Go repository:
 
 ```bash
-python3 ~/.codex/skills/go-code-standards/scripts/enforce_go_style.py --repo .
+python3 ~/.agents/skills/go-code-standards/scripts/enforce_go_style.py --repo .
 ```
 
 Auto-format and clean imports when supported:
 
 ```bash
-python3 ~/.codex/skills/go-code-standards/scripts/enforce_go_style.py --repo . --fix
+python3 ~/.agents/skills/go-code-standards/scripts/enforce_go_style.py --repo . --fix
 ```
 
 Strict style mode requires recommended external style tools such as `gofumpt`, `goimports`, and `golangci-lint`:
 
 ```bash
-python3 ~/.codex/skills/go-code-standards/scripts/enforce_go_style.py --repo . --strict
+python3 ~/.agents/skills/go-code-standards/scripts/enforce_go_style.py --repo . --strict
 ```
 
 ## Go Rule Priority
