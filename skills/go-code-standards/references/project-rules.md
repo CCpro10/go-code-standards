@@ -57,6 +57,9 @@ Do not use this Skill to find concurrency issues, suspicious bugs, performance p
 
 - Function names must be clear and accurately correspond to what the function actually does. A reader should be able to infer the object being handled, the action performed, and the result or side effect from the name; a name must not describe only one step, the happy path, or an abstract goal.
 - Recheck the name whenever implementation responsibilities change. If a function parses, filters, deduplicates, supplies defaults, or causes side effects, its name must expose those real behaviors. Otherwise narrow the responsibility or choose a more accurate name instead of retaining a misleading old name.
+- Names must express the complete business meaning first. A longer name is required when shortening it would omit the object type, key/value relationship, unit, scope, state, or other essential information.
+- Slice, array, and other list-like variables must use the plural form of the concrete business element type, such as `userIDs`, `orders`, or `skillRefs`. Do not use generic names such as `list`, `slice`, `array`, `arr`, `items`, `values`, `data`, or `result` that hide the element meaning.
+- Map variables must use the `<key>2<value>` form and name the business meaning of both sides, such as `userID2user`, `skillKey2version`, or `scene2config`. Do not use names such as `mapping`, `lookup`, `cache`, or `data`, or names that describe only the key or value side.
 - Avoid vague names such as `handleXxx`, `processXxx`, `doXxx`, and `runXxx` unless an interface or the immediate context already makes the exact responsibility unambiguous.
 - Names must reveal what code actually does. Avoid using `normalizeXxx` to hide trimming, filtering, deduplication, defaulting, and reshaping in one vague operation.
 - If parsing, deduplication, validation, or conversion is required, name the function after the real action, such as `parseXxx`, `dedupeXxx`, or `validateXxx`.

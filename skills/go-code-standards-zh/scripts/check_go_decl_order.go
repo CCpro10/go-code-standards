@@ -16,6 +16,7 @@ import (
 )
 
 var generatedRE = regexp.MustCompile(`(?m)^// Code generated .* DO NOT EDIT\.$`)
+var mapNameRE = regexp.MustCompile(`[A-Za-z_]2[A-Za-z_]`)
 
 type declaration struct {
 	name     string
@@ -39,7 +40,7 @@ func main() {
 		fail("resolve repo: %v", err)
 	}
 
-	pkgs := map[packageKey][]declaration{}
+	packageKey2declarations := map[packageKey][]declaration{}
 	var violations []string
 	fset := token.NewFileSet()
 	err = filepath.WalkDir(root, func(path string, entry os.DirEntry, walkErr error) error {
@@ -83,6 +84,7 @@ func main() {
 		key := packageKey{dir: filepath.ToSlash(dir), name: file.Name.Name}
 
 		violations = append(violations, checkStructComments(fset, filepath.ToSlash(rel), file)...)
+		violations = append(violations, checkCollectionNames(fset, filepath.ToSlash(rel), file)...)
 
 		for _, decl := range file.Decls {
 			fn, ok := decl.(*ast.FuncDecl)
@@ -90,7 +92,7 @@ func main() {
 				continue
 			}
 			pos := fset.Position(fn.Pos())
-			pkgs[key] = append(pkgs[key], declaration{
+			packageKey2declarations[key] = append(packageKey2declarations[key], declaration{
 				name:     fn.Name.Name,
 				file:     filepath.ToSlash(rel),
 				line:     pos.Line,
@@ -103,7 +105,7 @@ func main() {
 		fail("%v", err)
 	}
 
-	for key, decls := range pkgs {
+	for key, decls := range packageKey2declarations {
 		sort.Slice(decls, func(i, j int) bool {
 			if decls[i].file != decls[j].file {
 				return decls[i].file < decls[j].file
@@ -143,6 +145,111 @@ func main() {
 	}
 
 	fmt.Println("[ok] Go declaration style")
+}
+
+func checkCollectionNames(fset *token.FileSet, rel string, file *ast.File) []string {
+	var violations []string
+	ast.Inspect(file, func(node ast.Node) bool {
+		switch value := node.(type) {
+		case *ast.Field:
+			kind := collectionKind(value.Type)
+			for _, name := range value.Names {
+				violations = append(violations, checkCollectionName(fset, rel, name, kind)...)
+			}
+		case *ast.ValueSpec:
+			for i, name := range value.Names {
+				kind := collectionKind(value.Type)
+				if kind == "" && i < len(value.Values) {
+					kind = collectionKind(value.Values[i])
+				}
+				violations = append(violations, checkCollectionName(fset, rel, name, kind)...)
+			}
+		case *ast.AssignStmt:
+			if value.Tok != token.DEFINE {
+				return true
+			}
+			for i, left := range value.Lhs {
+				name, ok := left.(*ast.Ident)
+				if !ok || i >= len(value.Rhs) {
+					continue
+				}
+				violations = append(violations, checkCollectionName(
+					fset,
+					rel,
+					name,
+					collectionKind(value.Rhs[i]),
+				)...)
+			}
+		}
+		return true
+	})
+	return violations
+}
+
+func checkCollectionName(fset *token.FileSet, rel string, name *ast.Ident, kind string) []string {
+	if name == nil || name.Name == "_" || kind == "" {
+		return nil
+	}
+
+	pos := fset.Position(name.Pos())
+	switch kind {
+	case "list":
+		if isConcretePluralName(name.Name) {
+			return nil
+		}
+		return []string{fmt.Sprintf(
+			"%s:%d: list-like %s must use the plural concrete element business type, for example userIDs or skillRefs",
+			rel,
+			pos.Line,
+			name.Name,
+		)}
+	case "map":
+		if mapNameRE.MatchString(name.Name) {
+			return nil
+		}
+		return []string{fmt.Sprintf(
+			"%s:%d: map %s must use <key>2<value> naming, for example userID2user",
+			rel,
+			pos.Line,
+			name.Name,
+		)}
+	default:
+		return nil
+	}
+}
+
+func collectionKind(expr ast.Expr) string {
+	switch value := expr.(type) {
+	case *ast.ArrayType, *ast.Ellipsis:
+		return "list"
+	case *ast.MapType:
+		return "map"
+	case *ast.CompositeLit:
+		return collectionKind(value.Type)
+	case *ast.CallExpr:
+		if name, ok := value.Fun.(*ast.Ident); ok && (name.Name == "make" || name.Name == "new") {
+			if len(value.Args) == 0 {
+				return ""
+			}
+			return collectionKind(value.Args[0])
+		}
+		return collectionKind(value.Fun)
+	case *ast.ParenExpr:
+		return collectionKind(value.X)
+	case *ast.StarExpr:
+		return collectionKind(value.X)
+	default:
+		return ""
+	}
+}
+
+func isConcretePluralName(name string) bool {
+	switch strings.ToLower(name) {
+	case "list", "slice", "array", "arr", "items", "values", "data", "result", "results":
+		return false
+	default:
+		return len(name) > 1 && strings.HasSuffix(strings.ToLower(name), "s")
+	}
 }
 
 func checkStructComments(fset *token.FileSet, rel string, file *ast.File) []string {
