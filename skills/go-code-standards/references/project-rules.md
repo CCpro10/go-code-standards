@@ -37,7 +37,8 @@ Do not use this Skill to find concurrency issues, suspicious bugs, performance p
 - Do not extract helper functions for logic used only once. Extract only when a function reduces complexity, expresses a clear business concept, or is reused.
 - Do not cut code into too many small functions. You may suggest splitting files by responsibility, but do not split files or move code before the user explicitly confirms.
 - Do not keep meaningless pass-through functions, such as a `parsePositiveIDStringParam` wrapper that only forwards the same arguments to another function and directly returns its result. If a wrapper adds no business meaning, boundary validation, error context, or interface adaptation, inline the wrapped call or rename the underlying function instead of adding another layer for a more specific-looking name.
-- Do not create meaningless function aliases such as `var afunc = packageb.Bfunc` or `var afunc = bfunc`. If the goal is only a shorter name, call the original function or use an import alias. If a new API boundary is truly needed, write a real commented function that adds semantic value.
+- Normally avoid passing functions as parameters merely to create a callback, strategy, or handler abstraction for one-off logic. When the target behavior is fixed, call it directly so the execution order and call chain remain visible. Use function parameters only when the interface inherently requires a callback, multiple behavior implementations genuinely exist, or boundary injection clearly reduces complexity.
+- Do not declare function aliases through `var`, including `var afunc = packageb.Bfunc`, `var afunc = bfunc`, or an equivalent declaration with an explicit function type. Call the original function directly. Do not rename functions to shorten calls, hide their source, imply a false semantic layer, or create mutable package-level test seams.
 - Function code must include informative comments. Simple functions should explain business intent, input boundaries, or return semantics; complex functions should explain key branches, state changes, or constraints.
 - Function comments should describe the actual execution process, including the order of key steps, selection conditions, and what happens when a condition does not match. Do not stop at an abstract summary such as “process according to a strategy” when readers would still need to inspect the body to learn the behavior.
 - Bad: `// resolveSpecifiedTitle parses the specified title from two entry points according to custom-creation priority.`
@@ -54,7 +55,8 @@ Do not use this Skill to find concurrency issues, suspicious bugs, performance p
 
 ## Naming and Boundary Expression
 
-- Function names must state their responsibility directly. A reader should be able to infer the object being handled, the action performed, and the result or side effect from the name.
+- Function names must be clear and accurately correspond to what the function actually does. A reader should be able to infer the object being handled, the action performed, and the result or side effect from the name; a name must not describe only one step, the happy path, or an abstract goal.
+- Recheck the name whenever implementation responsibilities change. If a function parses, filters, deduplicates, supplies defaults, or causes side effects, its name must expose those real behaviors. Otherwise narrow the responsibility or choose a more accurate name instead of retaining a misleading old name.
 - Avoid vague names such as `handleXxx`, `processXxx`, `doXxx`, and `runXxx` unless an interface or the immediate context already makes the exact responsibility unambiguous.
 - Names must reveal what code actually does. Avoid using `normalizeXxx` to hide trimming, filtering, deduplication, defaulting, and reshaping in one vague operation.
 - If parsing, deduplication, validation, or conversion is required, name the function after the real action, such as `parseXxx`, `dedupeXxx`, or `validateXxx`.
