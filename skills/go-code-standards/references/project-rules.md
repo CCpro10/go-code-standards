@@ -19,6 +19,16 @@ Do not use this Skill to find concurrency issues, suspicious bugs, performance p
 - Treat the first unexported function or method as the start of the private section; do not place uppercase function or method names after it.
 - Do not mark non-API functions as exported. Do not capitalize a function merely for cross-file calls, test convenience, or perceived importance.
 
+## Data Structures and Contract Design
+
+- Data structures determine the core implementation. Start by identifying business invariants, read/write paths, and state lifecycles, then review the IDL, database schema, core structs, and function implementation in that order. Do not use complicated business code to compensate for an incorrect or ambiguous data model.
+- IDLs must express stable API contracts precisely. Review field names and types, required versus optional presence, default sources, units, time formats, ID types, enum values, error models, and forward/backward compatibility. Do not use vague strings, generic maps, nullable fields, or pass-through payloads to hide business concepts that should be explicit.
+- Database schemas must follow real access patterns and data invariants. Review primary and business-unique keys, field types, nullability and defaults, constraints, indexes, state and time fields, data ownership, lifecycle, and migration compatibility. Do not leave consistency that the schema can guarantee for every caller to maintain indefinitely.
+- Core structs must represent stable domain concepts rather than mechanically copying IDLs, database rows, or temporary call parameters. Fields need clear meaning, source, ownership, unit, valid range, and lifecycle. Avoid duplicate sources of truth, contradictory state fields, and large option bags whose valid combinations are unclear.
+- IDL, persistence, and domain types may differ, but each layer must add clear boundary value. Reuse types when semantics are truly identical and convert explicitly when semantics or lifecycles differ. Do not copy identical shapes through layers without reason, and do not leak transport or persistence types throughout business logic merely to avoid conversion code.
+- Evaluate long-term evolution and context-appropriate best practices: whether new fields or states preserve invariants, compatibility upgrades remain explicit, callers avoid repeatedly guessing semantics, and migrations and debugging remain controllable. “It works today” is not sufficient design justification.
+- A best-practice recommendation must explain how it follows from the current business constraints, access patterns, and compatibility requirements. Do not apply patterns mechanically without context.
+
 ## Structs
 
 - Structs must be necessary, clear, and reduce understanding cost. Do not define many intermediate structs for temporary transformation, ad hoc assembly, or hiding the call chain.

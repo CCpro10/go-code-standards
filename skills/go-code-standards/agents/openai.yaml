@@ -1,4 +1,4 @@
 interface:
-  display_name: "Go Style Standards"
-  short_description: "Review Go style and maintainability"
-  default_prompt: "Use $go-code-standards to review this Go code for style, readability, and maintainability."
+  display_name: "Go Design and Style Standards"
+  short_description: "Review data design, Go style, and maintainability"
+  default_prompt: "Use $go-code-standards to review this Go code for data-structure design, style, readability, and long-term maintainability."
