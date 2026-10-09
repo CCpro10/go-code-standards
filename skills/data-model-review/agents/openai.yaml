@@ -1,0 +1,4 @@
+interface:
+  display_name: "数据模型与数据流转 Review"
+  short_description: "审查长期对象、字段生命周期、单一事实来源与数据流转"
+  default_prompt: "Use $data-model-review to review these changes for data ownership, lifecycle, single source of truth, and unnecessary data transformations. Report findings without modifying code."
