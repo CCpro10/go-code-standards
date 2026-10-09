@@ -34,6 +34,7 @@ Skills:
                          Token-efficient Luna-assisted development workflow skill
   code-risk-review       Code risk review workflow for changed files
   data-model-review      Data model, lifecycle, and data flow review (review only)
+  main-flow-review       Main-flow readability and abstraction review (review only)
 
 Examples:
   sync_skill.sh

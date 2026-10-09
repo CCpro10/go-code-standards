@@ -1,0 +1,4 @@
+interface:
+  display_name: "主链路与抽象层级 Review"
+  short_description: "审查主流程与逐层抽象，判断每层是否能独立理解"
+  default_prompt: "Use $main-flow-review to review these changes for main-flow readability and abstraction levels. Check whether a reader can stop at any level and explain its complete responsibility and flow. Report findings without editing code."

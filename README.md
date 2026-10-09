@@ -17,6 +17,7 @@ The canonical skill list lives in `skills/manifest.tsv`; both installation and v
 | `luna-feature-development` | Token-efficient workflow: pass focused context to one Luna subAgent, then review and finish in the main agent. |
 | `code-risk-review` | Review changed code for bugs, field/data anomalies, ignored errors, concurrency, performance, logic, and runtime risks. |
 | `data-model-review` | Review data models, long-lived containers, field lifecycles, single source of truth, and data flow. Review only; does not edit code. |
+| `main-flow-review` | Review main flows and abstraction levels: each level should explain a complete responsibility, with lower levels naturally adding detail. Review only. |
 
 ## Migration From The Old Single-Skill Layout
 
@@ -48,6 +49,7 @@ curl -fsSL https://raw.githubusercontent.com/CCpro10/go-code-standards/main/scri
 curl -fsSL https://raw.githubusercontent.com/CCpro10/go-code-standards/main/scripts/sync_skill.sh | bash -s -- --skill luna-feature-development
 curl -fsSL https://raw.githubusercontent.com/CCpro10/go-code-standards/main/scripts/sync_skill.sh | bash -s -- --skill code-risk-review
 curl -fsSL https://raw.githubusercontent.com/CCpro10/go-code-standards/main/scripts/sync_skill.sh | bash -s -- --skill data-model-review
+curl -fsSL https://raw.githubusercontent.com/CCpro10/go-code-standards/main/scripts/sync_skill.sh | bash -s -- --skill main-flow-review
 curl -fsSL https://raw.githubusercontent.com/CCpro10/go-code-standards/main/scripts/sync_skill.sh | bash -s -- --skill code-risk-review --agent claude-code
 ```
 
