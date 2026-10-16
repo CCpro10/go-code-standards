@@ -36,7 +36,7 @@ def parse_frontmatter(path: Path) -> dict[str, str]:
         key, value = line.split(":", 1)
         key = key.strip()
         value = value.strip().strip('"')
-        if key not in {"name", "description"}:
+        if key not in {"name", "description", "allowed-tools"}:
             fail(f"{path}: unexpected frontmatter key: {key}")
         fields[key] = value
     return fields

@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 500">
+  <rect x="0" y="0" width="800" height="500" fill="#0F172A"/>
+  <text x="40" y="70" fill="#F8FAFC" font-size="32" font-weight="700">SVG → 飞书画板</text>
+  <text x="40" y="110" fill="#94A3B8" font-size="16">smoke test sample</text>
+
+  <rect x="40" y="160" width="220" height="120" rx="14" fill="#4F46E5"/>
+  <text x="60" y="210" fill="#FFFFFF" font-size="20" font-weight="700">设计</text>
+  <text x="60" y="240" fill="#E0E7FF" font-size="14">AI 自由写 SVG</text>
+
+  <rect x="290" y="160" width="220" height="120" rx="14" fill="#10B981"/>
+  <text x="310" y="210" fill="#FFFFFF" font-size="20" font-weight="700">转换</text>
+  <text x="310" y="240" fill="#D1FAE5" font-size="14">本地预览与检查</text>
+
+  <rect x="540" y="160" width="220" height="120" rx="14" fill="#F59E0B"/>
+  <text x="560" y="210" fill="#FFFFFF" font-size="20" font-weight="700">投放</text>
+  <text x="560" y="240" fill="#FEF3C7" font-size="14">whiteboard +update</text>
+
+  <line x1="260" y1="220" x2="290" y2="220" stroke="#94A3B8" stroke-width="3"/>
+  <line x1="510" y1="220" x2="540" y2="220" stroke="#94A3B8" stroke-width="3"/>
+
+  <circle cx="400" cy="380" r="50" fill="#EC4899"/>
+  <text x="400" y="388" text-anchor="middle" fill="#FFFFFF" font-size="18" font-weight="700">OK</text>
+</svg>
