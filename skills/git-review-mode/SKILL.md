@@ -31,7 +31,9 @@ python3 /path/to/git-review-mode/scripts/git_review.py --repo /path/to/feature-w
 
 - 有冲突时报告文件和 Git 输出并停止，原 Review 内容保留。不要替用户解决冲突或使用 ours/theirs 绕过。
 - 状态记录存放在 Git common dir 的 `greview/state.json`；暂存区树、HEAD 和工作区必须与记录一致。出现手动编辑、重新暂存、提交、切分支或未跟踪文件时停止，先让用户保留或处理修改，不能自动 stash、clean 或强制 reset。
-- 支持保留忽略的 IDE/构建文件，但若它们会被目标 tracked 文件覆盖则停止。sparse checkout、submodule 和隐藏索引标记暂不支持，按脚本错误说明处理。
+- 支持未初始化的空 gitlink：子模块路径缺失或确实为空目录时可进入、刷新和结束 Review，即使缺少 `.gitmodules` 或本地没有子模块提交对象。保留 `160000` 引用，关闭子模块递归；缺失路径只建立空目录占位，不初始化或下载子模块。
+- 子模块路径及其父路径含符号链接、子模块目录非空或已初始化时停止；包括只有忽略文件或 `.git` 的情况。进入、刷新、切换和结束前均检查 HEAD、索引和目标树涉及的路径，子模块与普通文件的类型转换暂不支持。
+- 支持保留忽略的 IDE/构建文件，但若它们会被目标 tracked 文件覆盖则停止。sparse checkout 和隐藏索引标记暂不支持，按脚本错误说明处理。
 - 若上次操作中断，先 `status` 查看状态；在没有手动修改时使用 `finish` 清理已记录的生成内容，再重新进入。不要删除状态文件强行绕过保护。
 - 修复建议回到功能 worktree 修改、提交，再刷新 Review。用户只要求进入 Review 时，完成准备即可；实际代码审查或修复按用户后续要求执行。
 - 本流程不创建合并提交，也不 push 目标业务仓库。GoLand 可直接打开主仓库，在 Commit/本地更改中查看 diff；启用 Git staging area 时看 Staged 区域。

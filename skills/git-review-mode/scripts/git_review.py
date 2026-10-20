@@ -18,7 +18,7 @@ class ReviewError(Exception):
 
 def git(repo: Path, *args: str, check: bool = True) -> subprocess.CompletedProcess[str]:
     result = subprocess.run(
-        ["git", "-C", str(repo), *args],
+        ["git", "-c", "submodule.recurse=false", "-C", str(repo), *args],
         stdout=subprocess.PIPE,
         stderr=subprocess.PIPE,
         text=True,
@@ -78,13 +78,15 @@ def ensure_supported(main: Path) -> None:
 
 def ensure_unedited(main: Path, state: dict | None) -> None:
     ensure_supported(main)
+    tree = git(main, "write-tree").stdout.strip()
+    ensure_tree_supported(main, "HEAD", tree)
     if state is None:
-        if git(main, "status", "--porcelain", "--untracked-files=all").stdout:
+        if (tree != resolve(main, "HEAD^{tree}")
+                or git(main, "status", "--porcelain", "--untracked-files=all", "--ignore-submodules=all").stdout):
             raise ReviewError("主仓库有已有修改或未跟踪文件，请先保存；脚本不会 stash 或覆盖。")
         return
 
     head = resolve(main, "HEAD")
-    tree = git(main, "write-tree").stdout.strip()
     allowed_heads = state.get("allowed_heads", [state["base_sha"]])
     allowed_trees = state.get("allowed_trees", [state["tree"]])
     if head not in allowed_heads or tree not in allowed_trees:
@@ -94,18 +96,40 @@ def ensure_unedited(main: Path, state: dict | None) -> None:
         raise ReviewError(branch.stderr.strip())
     if state["phase"] == "ready" and branch.returncode == 0:
         raise ReviewError("主仓库已切换到分支，拒绝覆盖当前状态。")
-    diff = git(main, "diff", "--quiet", "--ignore-submodules=none", "--", check=False)
+    diff = git(main, "diff", "--quiet", "--ignore-submodules=all", "--", check=False)
     if diff.returncode:
         raise ReviewError("Review 目录有未暂存修改，拒绝覆盖。请先保存修改。")
     if git(main, "ls-files", "--others", "--exclude-standard", "-z").stdout:
         raise ReviewError("Review 目录有未跟踪文件，拒绝覆盖。请先保存这些文件。")
 
 
-def ensure_tree_supported(main: Path, tree: str) -> None:
-    if any(line.startswith("160000 ") for line in git(main, "ls-tree", "-r", tree).stdout.splitlines()):
-        raise ReviewError("包含 submodule 的仓库暂不支持自动生成 Review 状态。")
+def ensure_tree_supported(main: Path, tree: str, *other_trees: str) -> None:
+    targets = set()
+    gitlinks = set()
+    regular_paths = set()
+    for ref in (tree, *other_trees):
+        for entry in filter(None, git(main, "ls-tree", "-r", "-z", ref).stdout.split("\0")):
+            metadata, name = entry.split("\t", 1)
+            targets.add(name)
+            if metadata.startswith("160000 "):
+                gitlinks.add(name)
+            else:
+                regular_paths.add(name)
+
+    for name in sorted(gitlinks):
+        if any(path == name or path.startswith(name + "/") or name.startswith(path + "/")
+               for path in regular_paths):
+            raise ReviewError(f"子模块与普通文件之间的类型转换暂不支持：{name}")
+        path = main
+        for component in name.split("/"):
+            path = path / component
+            if path.is_symlink() or (path.exists() and not path.is_dir()):
+                raise ReviewError(f"子模块路径必须缺失或为空目录，已停止：{name}")
+        # Do not traverse submodules: even ignored files or a .git entry must be preserved.
+        if path.exists() and any(path.iterdir()):
+            raise ReviewError(f"子模块已初始化或目录非空，已保留内容并停止：{name}")
+
     # Ignored IDE/build files may stay, but must never be overwritten by tracked content.
-    targets = set(git(main, "ls-tree", "-r", "--name-only", "-z", tree).stdout.split("\0"))
     prefixes = set()
     for target in targets:
         parts = target.split("/")
@@ -123,8 +147,17 @@ def fetch_branch(main: Path, remote: str, branch: str) -> str:
     target = f"refs/remotes/{remote}/{branch}"
     git(main, "check-ref-format", target)
     print(f"Fetch {remote}/{branch}", file=sys.stderr)
-    git(main, "fetch", "--no-tags", "--", remote, f"+refs/heads/{branch}:{target}")
+    git(main, "fetch", "--no-tags", "--recurse-submodules=no", "--", remote, f"+refs/heads/{branch}:{target}")
     return resolve(main, f"{target}^{{commit}}")
+
+
+def checkout_tree(main: Path, old_tree: str, new_tree: str) -> None:
+    git(main, "read-tree", "-m", "-u", old_tree, new_tree)
+    # Empty placeholders keep residual gitlinks from appearing as unstaged deletions.
+    for entry in filter(None, git(main, "ls-tree", "-r", "-z", new_tree).stdout.split("\0")):
+        metadata, name = entry.split("\t", 1)
+        if metadata.startswith("160000 "):
+            (main / name).mkdir(parents=True, exist_ok=True)
 
 
 def snapshot(main: Path, branch: str, remote: str, base: str, latest: bool) -> dict:
@@ -151,7 +184,7 @@ def snapshot(main: Path, branch: str, remote: str, base: str, latest: bool) -> d
     if merged.returncode:
         raise ReviewError(merged.stderr.strip() or "merge-tree 失败；需要 Git 2.38+。")
     tree = merged.stdout.strip().splitlines()[0]
-    ensure_tree_supported(main, tree)
+    ensure_tree_supported(main, tree, base_sha)
 
     worktree = git(main, "for-each-ref", "--format=%(worktreepath)", source_ref).stdout.strip()
     if worktree and git(Path(worktree), "status", "--porcelain").stdout:
@@ -163,7 +196,7 @@ def snapshot(main: Path, branch: str, remote: str, base: str, latest: bool) -> d
 def apply_snapshot(main: Path, state_path: Path, state: dict) -> None:
     old_head = resolve(main, "HEAD")
     old_tree = git(main, "write-tree").stdout.strip()
-    ensure_tree_supported(main, old_tree)
+    ensure_tree_supported(main, state["tree"], state["base_sha"], old_tree, "HEAD")
     state.update(version=1, main=str(main), phase="applying",
                  allowed_heads=[old_head, state["base_sha"]], allowed_trees=[old_tree, state["tree"]])
     # Journal before mutating HEAD/index so an interrupted run can be inspected and finished.
@@ -171,7 +204,7 @@ def apply_snapshot(main: Path, state_path: Path, state: dict) -> None:
     for name, sha in (("base", state["base_sha"]), ("source", state["source_sha"]), ("tree", state["tree"])):
         git(main, "update-ref", f"refs/greview/{name}", sha)
     git(main, "-c", "core.hooksPath=/dev/null", "checkout", "--detach", "--no-overwrite-ignore", old_head)
-    git(main, "read-tree", "-m", "-u", old_tree, state["tree"])
+    checkout_tree(main, old_tree, state["tree"])
     git(main, "update-ref", "--no-deref", "HEAD", state["base_sha"], old_head)
     state.update(phase="ready")
     state.pop("allowed_heads")
@@ -194,12 +227,12 @@ def report(main: Path, state: dict | None) -> None:
 
 def finish(main: Path, state_path: Path, state: dict) -> None:
     head_tree = resolve(main, "HEAD^{tree}")
-    ensure_tree_supported(main, head_tree)
     current_tree = git(main, "write-tree").stdout.strip()
+    ensure_tree_supported(main, head_tree, current_tree)
     state.update(phase="finishing", allowed_heads=[resolve(main, "HEAD")],
                  allowed_trees=[current_tree, head_tree])
     save_state(state_path, state)
-    git(main, "read-tree", "-m", "-u", current_tree, head_tree)
+    checkout_tree(main, current_tree, head_tree)
     for name in ("base", "source", "tree"):
         git(main, "update-ref", "-d", f"refs/greview/{name}")
     state_path.unlink()

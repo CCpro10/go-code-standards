@@ -107,6 +107,8 @@ Run in any worktree, or put `--repo /path/to/worktree` before the subcommand. Op
 
 Default snapshots include local committed code only. `--latest` fetches the feature branch upstream without pulling or changing the developer's checkout; it refuses to omit local unpushed or divergent commits. Conflicts preserve the previous review. Refresh, switch, and finish refuse manual review edits or untracked files. Make fixes in the development worktree, commit, then refresh. Ignored IDE files stay unless they would collide with target content.
 
+Uninitialized gitlinks are supported when their paths are absent or empty, including residual references without `.gitmodules`. The script preserves gitlink entries and disables recursive submodule operations. Populated or initialized submodules, symlink paths, and gitlink-to-file type conversions are rejected before changing the review snapshot.
+
 An optional shell shortcut after installing the Skill:
 
 ```bash

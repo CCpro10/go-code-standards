@@ -249,6 +249,107 @@ class GitReviewModeTests(unittest.TestCase):
         self.assertIn("MERGE_HEAD", result.stderr)
         self.assertEqual(self.fingerprint(self.repo), before)
 
+    def add_empty_gitlink(self):
+        path = ".idl-ai-coding/idl"
+        # The submodule commit is deliberately unavailable; no .gitmodules is present.
+        self.git(self.repo, "update-index", "--add", "--cacheinfo", f"160000,{'1' * 40},{path}")
+        self.git(self.repo, "commit", "-m", "add residual gitlink")
+        self.git(self.repo, "push", "origin", "master")
+        self.git(self.feature, "merge", "--no-edit", "master")
+        self.git(self.feature, "push", "origin", "feature/song")
+        return self.repo / path
+
+    def test_empty_gitlink_without_gitmodules_supports_full_review_cycle(self):
+        path = self.add_empty_gitlink()
+        path.mkdir(parents=True, exist_ok=True)
+        before = self.fingerprint(self.feature)
+        self.assertFalse((self.repo / ".gitmodules").exists())
+        self.run_review("review", "feature/song")
+        self.assertEqual(self.git(self.repo, "ls-files", "-s", "--", ".idl-ai-coding/idl").stdout.split()[0], "160000")
+        self.assertEqual(self.git(self.repo, "diff", "--cached", "--name-only").stdout, "song.txt\n")
+        self.run_review("refresh", "--latest")
+        self.run_review("finish")
+        self.assertEqual(self.git(self.repo, "status", "--porcelain").stdout, "")
+        self.assertEqual(self.fingerprint(self.feature), before)
+        self.assertFalse(any(path.iterdir()))
+
+    def test_absent_gitlink_path_does_not_trigger_recursive_submodule_operations(self):
+        path = self.add_empty_gitlink()
+        if path.exists():
+            path.rmdir()
+        self.git(self.repo, "config", "submodule.recurse", "true")
+        self.git(self.repo, "config", "fetch.recurseSubmodules", "true")
+        self.run_review("review", "feature/song")
+        self.run_review("refresh")
+        self.run_review("finish")
+        self.assertFalse(path.exists() and any(path.iterdir()))
+
+    def test_nonempty_gitlink_is_rejected_without_modifying_files(self):
+        path = self.add_empty_gitlink()
+        path.mkdir(parents=True, exist_ok=True)
+        (path / "keep.txt").write_text("local submodule data\n")
+        before = self.fingerprint(self.repo)
+        self.run_review("review", "feature/song", ok=False)
+        self.assertEqual(self.fingerprint(self.repo), before)
+        self.assertEqual((path / "keep.txt").read_text(), "local submodule data\n")
+
+    def test_initialized_gitlink_is_rejected_even_when_clean(self):
+        path = self.add_empty_gitlink()
+        path.mkdir(parents=True, exist_ok=True)
+        self.git(path, "init")
+        result = self.run_review("review", "feature/song", ok=False)
+        self.assertTrue((path / ".git").is_dir())
+        self.assertIn("子模块", result.stderr)
+
+    def test_populated_gitlink_blocks_refresh_and_finish(self):
+        path = self.add_empty_gitlink()
+        self.run_review("review", "feature/song")
+        path.mkdir(parents=True, exist_ok=True)
+        (path / "keep.txt").write_text("added during review\n")
+        before = self.fingerprint(self.repo)
+        self.run_review("refresh", ok=False)
+        self.run_review("finish", ok=False)
+        self.assertEqual(self.fingerprint(self.repo), before)
+        self.assertEqual((path / "keep.txt").read_text(), "added during review\n")
+
+    def test_symlink_gitlink_is_rejected(self):
+        path = self.add_empty_gitlink()
+        if path.exists():
+            path.rmdir()
+        outside = self.root / "outside"
+        outside.mkdir()
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.symlink_to(outside, target_is_directory=True)
+        self.run_review("review", "feature/song", ok=False)
+        self.assertTrue(path.is_symlink())
+
+    def test_gitlink_pointer_change_is_staged_and_finish_restores_base_pointer(self):
+        self.add_empty_gitlink()
+        self.git(self.feature, "update-index", "--cacheinfo", f"160000,{'2' * 40},.idl-ai-coding/idl")
+        self.git(self.feature, "commit", "-m", "update empty gitlink")
+        self.run_review("review", "feature/song")
+        self.assertIn("2" * 40, self.git(self.repo, "ls-files", "-s", "--", ".idl-ai-coding/idl").stdout)
+        self.run_review("finish")
+        self.assertIn("1" * 40, self.git(self.repo, "ls-files", "-s", "--", ".idl-ai-coding/idl").stdout)
+
+    def test_staged_gitlink_edit_is_not_hidden_by_submodule_ignore(self):
+        self.add_empty_gitlink()
+        self.git(self.repo, "update-index", "--cacheinfo", f"160000,{'2' * 40},.idl-ai-coding/idl")
+        index = self.git(self.repo, "write-tree").stdout
+        self.run_review("review", "feature/song", ok=False)
+        self.assertEqual(self.git(self.repo, "write-tree").stdout, index)
+
+    def test_gitlink_to_regular_files_transition_stops_before_review(self):
+        self.add_empty_gitlink()
+        path = self.feature / ".idl-ai-coding/idl"
+        self.git(self.feature, "rm", "--cached", ".idl-ai-coding/idl")
+        path.mkdir(parents=True, exist_ok=True)
+        self.commit(self.feature, ".idl-ai-coding/idl/idl.txt", "regular tracked data\n")
+        before = self.fingerprint(self.repo)
+        result = self.run_review("review", "feature/song", ok=False)
+        self.assertIn("类型转换", result.stderr)
+        self.assertEqual(self.fingerprint(self.repo), before)
+
 
 if __name__ == "__main__":
     unittest.main()
