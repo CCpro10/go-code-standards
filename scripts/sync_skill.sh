@@ -36,6 +36,7 @@ Skills:
   data-model-review      Data model, lifecycle, and data flow review (review only)
   main-flow-review       Main-flow readability and abstraction review (review only)
   svg-to-feishu-board     SVG to editable Feishu whiteboard nodes
+  git-review-mode        Main-checkout staged review mode for GoLand
 
 Examples:
   sync_skill.sh

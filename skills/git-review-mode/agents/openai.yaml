@@ -1,0 +1,4 @@
+interface:
+  display_name: "主仓库 Review 模式"
+  short_description: "在主仓库准备和刷新功能分支 diff，保留独立开发 worktree 的状态"
+  default_prompt: "Use $git-review-mode to prepare this feature branch for GoLand review in the main checkout, preserving development worktrees and reporting merge conflicts."

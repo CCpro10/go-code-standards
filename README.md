@@ -19,6 +19,7 @@ The canonical skill list lives in `skills/manifest.tsv`; both installation and v
 | `data-model-review` | Review data models, long-lived containers, field lifecycles, single source of truth, and data flow. Review only; does not edit code. |
 | `main-flow-review` | Review main flows and abstraction levels: each level should explain a complete responsibility, with lower levels naturally adding detail. Review only. |
 | `svg-to-feishu-board` | Design or import SVG as editable Feishu whiteboard nodes, with layout guides, local preview, and cloud verification. Requires an authorized `lark-cli`. |
+| `git-review-mode` | Use the main checkout as a fixed GoLand review directory, with staged diffs against the latest remote base and untouched feature worktrees. |
 
 ## Migration From The Old Single-Skill Layout
 
@@ -52,6 +53,7 @@ curl -fsSL https://raw.githubusercontent.com/CCpro10/go-code-standards/main/scri
 curl -fsSL https://raw.githubusercontent.com/CCpro10/go-code-standards/main/scripts/sync_skill.sh | bash -s -- --skill data-model-review
 curl -fsSL https://raw.githubusercontent.com/CCpro10/go-code-standards/main/scripts/sync_skill.sh | bash -s -- --skill main-flow-review
 curl -fsSL https://raw.githubusercontent.com/CCpro10/go-code-standards/main/scripts/sync_skill.sh | bash -s -- --skill svg-to-feishu-board
+curl -fsSL https://raw.githubusercontent.com/CCpro10/go-code-standards/main/scripts/sync_skill.sh | bash -s -- --skill git-review-mode
 curl -fsSL https://raw.githubusercontent.com/CCpro10/go-code-standards/main/scripts/sync_skill.sh | bash -s -- --skill code-risk-review --agent claude-code
 ```
 
@@ -88,6 +90,28 @@ claude-code: ${CLAUDE_HOME:-$HOME/.claude}/skills/<skill-name>
 `--agent codex` installs to the Agent Skills user directory (`~/.agents/skills`). The `~/.codex/skills/.system` directory is managed by Codex and is not a user Skill install target. Use `--target-root /path/to/skills` to install under one custom skills root, or `--target /path/to/skill` for a single exact destination. Re-run the same install command to update. Restart Codex or Claude Code after installing or updating if the agent does not detect changes live.
 
 Security note: this repository ships executable scripts. For a new environment, inspect `scripts/sync_skill.sh` before piping it to `bash`.
+
+## GoLand Review Mode
+
+Keep development in feature worktrees and use the main checkout as a reusable review directory. Requires Python 3.9+, Git 2.38+, and macOS/Linux.
+
+```bash
+python3 ~/.agents/skills/git-review-mode/scripts/git_review.py review feature/song
+python3 ~/.agents/skills/git-review-mode/scripts/git_review.py refresh
+python3 ~/.agents/skills/git-review-mode/scripts/git_review.py refresh --latest
+python3 ~/.agents/skills/git-review-mode/scripts/git_review.py status
+python3 ~/.agents/skills/git-review-mode/scripts/git_review.py finish
+```
+
+Run in any worktree, or put `--repo /path/to/worktree` before the subcommand. Open the printed main-checkout directory in GoLand. HEAD is detached at the latest `origin/master`; the index and files contain the simulated merge, so the staged diff shows only feature changes. Local `master` and feature branch refs are preserved. Use `review feature/song --base main --remote upstream` for another base.
+
+Default snapshots include local committed code only. `--latest` fetches the feature branch upstream without pulling or changing the developer's checkout; it refuses to omit local unpushed or divergent commits. Conflicts preserve the previous review. Refresh, switch, and finish refuse manual review edits or untracked files. Make fixes in the development worktree, commit, then refresh. Ignored IDE files stay unless they would collide with target content.
+
+An optional shell shortcut after installing the Skill:
+
+```bash
+alias greview='python3 "$HOME/.agents/skills/git-review-mode/scripts/git_review.py"'
+```
 
 ## Use The Go Checks
 
