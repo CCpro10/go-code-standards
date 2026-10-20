@@ -35,7 +35,7 @@ python3 /path/to/go-code-standards/scripts/enforce_go_style.py --repo . --fix
 - Whether core structs represent stable domain concepts and invariants, with one source of truth, clear ownership and lifecycle, long-term maintainability, and practices appropriate to the current system.
 - Directory depth and package responsibility; suggest file or directory splits only, without performing heavy moves before user confirmation.
 - Whether structs are necessary and clear, without excessive intermediate types; whether exported structs and their fields have clear comments.
-- Whether functions and methods are split reasonably, failure paths return early before a clear sequential main flow, and the code avoids excessive one-off helpers or function-parameter abstractions, meaningless pass-through functions that should be inlined, `var` function aliases, or constant aliases.
+- Whether functions and methods are split reasonably, failure paths return early before a clear sequential main flow, and the code avoids excessive one-off helpers, function/method-value assignments or function passing in business flow, meaningless pass-through functions that should be inlined, function aliases, or constant aliases.
 - Whether the most important exported functions are first and unexported functions are last.
 - Whether function comments describe the actual execution order, selection conditions, and what happens when a condition does not match; whether function names accurately correspond to all behavior they perform, collections use concrete plural element names, and maps use `<key>2<value>` names.
 - Whether defaults, internal engineering fallbacks, or deep `normalizeXxx` helpers hide invalid states.
