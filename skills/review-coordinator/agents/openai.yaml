@@ -1,0 +1,4 @@
+interface:
+  display_name: "review-coordinator"
+  short_description: "协调多专项代码 Review：先询问范围、专项选择、子 Agent 模型和思考等级，确认后按专项创建独立子 Agent，再核实和去重汇总"
+  default_prompt: "Use $review-coordinator to review the requested changes."

@@ -1,92 +1,18 @@
-# Go Style and Maintainability Rules
+# Go Expression Rules (Highest Priority)
 
-This file is the highest-priority rule set for the Go style Skill. It only handles style, readability, and maintainability. Assume the code logic is correct.
+The Chinese version is authoritative; keep this English mirror semantically aligned. Review local expression and Go conventions only.
 
-Do not use this Skill to find concurrency issues, suspicious bugs, performance problems, or business logic errors. Use `code-risk-review` for those risks.
+- Names must express actual responsibility, object, action and result. Prefer shorter unambiguous names; use consistent established abbreviations such as Req, Resp, Config and Ctx.
+- Name slices/arrays/lists after plural concrete business elements, such as userIDs, orders and skillRefs. Maps use key2value, such as userID2user. Generic list, items, data and mapping names hide meaning.
+- Package-private non-API functions, methods and structs start lowercase. Cross-file calls within a package require no export; methods required by a public interface contract are an exception.
+- Put important exported functions first, other exported functions next, private functions last. Do not export merely to satisfy ordering.
+- Functions need informative process-oriented comments. Explain key steps, conditions and boundaries for complex functions; for example, first parse the advanced-creation title, then use the inspiration title if absent.
+- Exported structs need detailed meaning, purpose and boundary comments; fields explain meaning, source, units and limits.
+- Declare variables after fallible steps and close to first use. Return explicit empty structs or nil on failure. Construct large structs with keyed composite literals rather than incremental field filling.
+- Use meaningful documented constants for business states and protocol values rather than raw strings. Duplicate constant declarations belong to abstraction review.
+- Break parameters, fields and logic phases into readable lines. Keep package names concise and meaningful.
+- Use code.byted.org/lang/gg/gptr and gptr.Of, with explicit numeric types such as gptr.Of[int64](...) when needed; do not hand-write pointer helpers.
+- Suggest file splits and directory moves; perform them only when the user explicitly authorizes them.
+- Apply these rules before general Go guidance and non-conflicting project conventions. Current explicit user instructions take precedence.
 
-## Priority
-
-1. This file: highest priority.
-2. `references/go-style-rules.md`: general Go style rules from Google Go Style and the Uber Go Style Guide.
-3. Repository-local conventions: follow them only when they do not violate the first two layers.
-
-## Directories and Packages
-
-- Directory levels should express business modules and responsibility boundaries. Do not create directories around temporary implementation details, helper buckets, or overly deep technical layers.
-- Package names should be short, lowercase, and meaningful. Avoid names such as `util`, `common`, and `misc` that do not express responsibility.
-- Splitting files, moving directories, or splitting packages is a heavy structural change. During review, point out files with unfocused responsibilities or too many topics and suggest possible responsibility-based split directions, but do not perform file splitting or code moves without explicit user confirmation.
-- In each package, the most important exported functions and methods should appear first, then other exported functions and methods, then unexported functions and methods.
-- Treat the first unexported function or method as the start of the private section; do not place uppercase function or method names after it.
-- Package-private functions and methods must start with a lowercase letter; do not export non-API functions. Files within one package can call lowercase functions directly. Do not capitalize a function merely for cross-file calls, test convenience, or perceived importance.
-
-## Data Structures and Contract Design
-
-- Data structures determine the core implementation. Start by identifying business invariants, read/write paths, and state lifecycles, then review the IDL, database schema, core structs, and function implementation in that order. Do not use complicated business code to compensate for an incorrect or ambiguous data model.
-- IDLs must express stable API contracts precisely. Review field names and types, required versus optional presence, default sources, units, time formats, ID types, enum values, error models, and forward/backward compatibility. Do not use vague strings, generic maps, nullable fields, or pass-through payloads to hide business concepts that should be explicit.
-- Database schemas must follow real access patterns and data invariants. Review primary and business-unique keys, field types, nullability and defaults, constraints, indexes, state and time fields, data ownership, lifecycle, and migration compatibility. Do not leave consistency that the schema can guarantee for every caller to maintain indefinitely.
-- Core structs must represent stable domain concepts rather than mechanically copying IDLs, database rows, or temporary call parameters. Fields need clear meaning, source, ownership, unit, valid range, and lifecycle. Avoid duplicate sources of truth, contradictory state fields, and large option bags whose valid combinations are unclear.
-- IDL, persistence, and domain types may differ, but each layer must add clear boundary value. Reuse types when semantics are truly identical and convert explicitly when semantics or lifecycles differ. Do not copy identical shapes through layers without reason, and do not leak transport or persistence types throughout business logic merely to avoid conversion code.
-- Evaluate long-term evolution and context-appropriate best practices: whether new fields or states preserve invariants, compatibility upgrades remain explicit, callers avoid repeatedly guessing semantics, and migrations and debugging remain controllable. “It works today” is not sufficient design justification.
-- A best-practice recommendation must explain how it follows from the current business constraints, access patterns, and compatibility requirements. Do not apply patterns mechanically without context.
-
-## Types and Structs
-
-- When behavior has only one actual implementation and no independent contract, use the concrete type or named function directly without introducing an interface or strategy type. Do not abstract in advance for a hypothetical second implementation, test injection, or uniform call syntax. This rule leaves room for concrete domain data types and necessary external contracts.
-
-- Structs must be necessary, clear, and reduce understanding cost. Do not define many intermediate structs for temporary transformation, ad hoc assembly, or hiding the call chain.
-- Before defining a struct, confirm that it expresses a stable business concept, external contract, persistent state, or reused data shape.
-- If a shape is only used once to pass a few fields, assemble temporary parameters, or later overwrite fields, prefer explicit inputs, local variables, or direct construction of the target object.
-- Field meanings, sources, and lifecycles must be clear. Do not define structs with unclear boundaries.
-- Every exported struct must have a detailed comment that explains its business concept, purpose, boundary, lifecycle, or external contract.
-- Every field in an exported struct must have a clear comment that explains its meaning, source, unit, boundary, or usage limit.
-- Structs that are not part of the package API must not be capitalized/exported. Do not export a struct merely for cross-file use, test convenience, or perceived importance.
-
-## Functions and Methods
-
-- Function and method placement must be reasonable. A method should express receiver behavior or state change; if it has no real relationship with the receiver, prefer a plain function.
-- Handle failure paths first and return early, then continue with the normal flow. Put nil arguments, invalid input, missing dependencies, `err != nil`, and similar failure conditions before the main path instead of nesting normal business logic inside multiple branches.
-- Good code is short and direct first. If a small amount of sequential code is clear, do not split it into many one-off helpers.
-- Do not extract helper functions for logic used only once. Extract only when a function reduces complexity, expresses a clear business concept, or is reused.
-- Do not cut code into too many small functions. You may suggest splitting files by responsibility, but do not split files or move code before the user explicitly confirms.
-- Do not keep meaningless pass-through functions, such as a `parsePositiveIDStringParam` wrapper that only forwards the same arguments to another function and directly returns its result. If a wrapper adds no business meaning, boundary validation, error context, or interface adaptation, inline the wrapped call or rename the underlying function instead of adding another layer for a more specific-looking name.
-- Prohibit thin wrappers with duplicate responsibilities and chains of forwarding calls. A few lines of config lookup, `TrimSpace`, parameter shuffling, empty checks, or defaults do not by themselves create an independent responsibility. Trace the call chain and require a real business step, meaningful complexity hiding, or a necessary boundary. Prefer one clear entry point and the implementation it needs so readers can reach the core logic directly; do not impose mechanical function-length or call-depth limits.
-- Bad: `GenerateWithArk` reads `Ark.Model`, trims it, supplies `DefaultModelName` when empty, and only calls `GenerateWithArkModel`. Both names describe the same generation action; avoid a redundant default-entry / explicit-parameter-entry / implementation chain. According to the actual contract, merge duplicate entry points or call the single implementation directly, and resolve and validate model configuration at an explicit entry or construction boundary instead of silently defaulting in a forwarding layer. A genuinely separate external adapter contract must justify its boundary value; another name or a little preprocessing is not enough.
-- Normally prohibit assigning functions, method values, or anonymous functions to variables, struct fields, or collections for indirect calls. Review `var f = foo`, `f := foo`, `f = foo`, `f := service.Execute`, and `f := func(...) {...}`, not just package-level `var` declarations. Prefer direct calls to named functions or methods, or short logic in the current flow. `result := foo(...)` stores a call result and is not a function-value assignment.
-- Business-layer code should normally prohibit passing functions as values, including function parameters, returned functions, function fields, and maps/lists of business actions. Do not introduce callbacks, strategies, pipelines, or higher-order functions merely to reuse a little control flow, remove explicit branches, or unify call syntax. Prefer explicit business functions, sequential calls, and clear `if`/`switch` branches that expose the target, order, and data flow. Do not mechanically replace function values with more interfaces, strategy structs, or pass-through wrappers.
-- In particular, do not define named function types such as `type ExecuteFunc func(context.Context, Request) error` to pass behavior through business layers. Call the named function or method directly when the target is fixed. Removing the type name and passing the same behavior with an unnamed function signature does not solve the problem.
-- Allow function values only within the smallest technical boundary where a standard-library or external-framework contract requires a callback, or infrastructure genuinely needs them; explain why. Multiple implementations, convenient injection, or reduced duplication alone do not justify function-passing business call chains.
-- Function aliases remain prohibited, including `var afunc = packageb.Bfunc`, `afunc := bfunc`, and equivalent declarations with explicit function types. Call the original function directly. Do not rename functions to shorten calls, hide their source, imply a false semantic layer, or create mutable package-level test seams.
-- Function code must include informative comments. Simple functions should explain business intent, input boundaries, or return semantics; complex functions should explain key branches, state changes, or constraints.
-- Function comments should describe the actual execution process, including the order of key steps, selection conditions, and what happens when a condition does not match. Do not stop at an abstract summary such as “process according to a strategy” when readers would still need to inspect the body to learn the behavior.
-- Bad: `// resolveSpecifiedTitle parses the specified title from two entry points according to custom-creation priority.`
-- Good: `// resolveSpecifiedTitle first tries the advanced-creation title; if none is found, it uses the inspiration-creation title.`
-- Comments must not merely restate code. Avoid comments such as “assign value” or “call method”.
-
-## Local Readability
-
-- Declare variables as late as practical. If a variable may remain unused because a later step can fail, declare it after that fallible step.
-- Return empty structs and nil values explicitly on failure. For example, return `dailyLoginRewardConfig{}` instead of declaring an empty variable early only to reuse it on failure paths.
-- For large business structs, prefer keyed composite literals that construct the complete object in one place.
-- Avoid declaring an empty struct and assigning fields one by one unless an API or control flow requires mutation.
-- Use reasonable blank lines and line breaks to make logic phases easy to scan.
-
-## Naming and Boundary Expression
-
-- Function names must be clear and accurately correspond to what the function actually does. A reader should be able to infer the object being handled, the action performed, and the result or side effect from the name; a name must not describe only one step, the happy path, or an abstract goal.
-- Recheck the name whenever implementation responsibilities change. If a function parses, filters, deduplicates, supplies defaults, or causes side effects, its name must expose those real behaviors. Otherwise narrow the responsibility or choose a more accurate name instead of retaining a misleading old name.
-- Keep names as concise as possible without changing or weakening their meaning. Do not mechanically stack words for completeness, and do not omit essential information such as the object type, key/value relationship, unit, scope, or state merely to make a name shorter. Choose the shorter name that still expresses the business meaning completely and unambiguously.
-- Use established abbreviations whose meaning is stable in the team and in Go code, such as `ID`, `URL`, `Req`, `Resp`, `Config`, and `Ctx`. For example, prefer `newInterruptSessionResp` over the unnecessarily long `newInterruptSessionResponse`. Do not invent obscure abbreviations or use multiple abbreviations for the same word within one package.
-- Slice, array, and other list-like variables must use the plural form of the concrete business element type, such as `userIDs`, `orders`, or `skillRefs`. Do not use generic names such as `list`, `slice`, `array`, `arr`, `items`, `values`, `data`, or `result` that hide the element meaning.
-- Map variables must use the `<key>2<value>` form and name the business meaning of both sides, such as `userID2user`, `skillKey2version`, or `scene2config`. Do not use names such as `mapping`, `lookup`, `cache`, or `data`, or names that describe only the key or value side.
-- Avoid vague names such as `handleXxx`, `processXxx`, `doXxx`, and `runXxx` unless an interface or the immediate context already makes the exact responsibility unambiguous.
-- Names must reveal what code actually does. Avoid using `normalizeXxx` to hide trimming, filtering, deduplication, defaulting, and reshaping in one vague operation.
-- If parsing, deduplication, validation, or conversion is required, name the function after the real action, such as `parseXxx`, `dedupeXxx`, or `validateXxx`.
-- Do not create meaningless constant aliases such as `taskQueryStatePending = SongResultStatePending`. If two names represent the same state, enum value, or business concept, use the original constant directly. Do not introduce an equal-value constant merely for local naming, call convenience, or superficial layering.
-- Business objects should be constructed from explicit input. Do not create a “default business object” and then overwrite it into a different meaning through branches.
-- Do not add meaningless fallback or normalization for internal engineering parameters inside business flow, such as `normalizeAudioParseSyncTimeout` silently replacing invalid timeout, poll interval, or retry limit values with defaults or caps. Internal configuration must be decided and validated once at construction, startup, or config-loading boundaries. If internal code passes an invalid value, expose a clear error or fix the call site instead of adding fallback logic on every execution path.
-- Defaults are allowed only at explicit boundaries: external request parsing, config loading, compatibility adapters, or constructors. The default source, scope, and limit must be obvious. Do not hide defaults inside deep helpers, service methods, or repeated loop paths.
-
-## Pointer Helpers
-
-- Do not write `stringPtr`, `int64Ptr`, `boolPtr`, or similar pointer helpers by hand. Use `gptr.Of(...)` from `code.byted.org/lang/gg/gptr`.
-- Be careful with type inference when passing numeric constants to `gptr.Of`. Use `gptr.Of[int64](...)` or `gptr.Of[int32](...)` when the result must be `*int64`, `*int32`, or another explicit numeric pointer type.
+Route data design, function values/types, thin wrappers, orchestration, fallback contracts and concrete failures to their respective specialties.

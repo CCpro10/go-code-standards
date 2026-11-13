@@ -1,32 +1,26 @@
 ---
 name: code-risk-review
-description: "Code risk review workflow for changed files. Use to inspect git diff or staged changes for risk items only: suspicious bugs, field/data anomalies, ignored or swallowed errors, logic errors, concurrency problems, performance regressions, resource leaks, API contract issues, and other correctness risks. Splits large reviews across 2-5 subAgents by module, then synthesizes and fixes."
+description: 审查代码修改带来的具体故障和回归：并发、幂等、事务、字段错传、错误处理、性能、资源、环境隔离及线上路径影响。基于实际触发条件与证据，默认只 Review。
 ---
 
-# Code Risk Review
+# 正确性与回归风险 Review
 
-Use this Skill for risk review only. Do not comment on style, naming, formatting, or readability unless it creates a concrete risk.
+## 检查
 
-## Workflow
+- 对照改动前行为与明确需求，追踪输入、调用链、输出、副作用和持久化。需求允许的行为变化不当作回归。
+- 并发、锁、取消、超时、任务重复消费、重试、幂等、事务边界与资源释放。
+- DTO/IDL/DB 转换逐字段核对来源、缺失、覆盖、ID、单位、枚举、时间、零值与 nil；检查未处理或吞掉的错误如何改变结果。
+- 状态机转换、顺序、边界值、权限、环境/租户隔离、跨服务路由和协议兼容。
+- 非必要 IO/扇出、复杂度、重复计算和资源增长；性能结论给出路径、规模或测量依据。
+- 评测、回放或单个业务扩展是否改变正常线上核心路径。配置发布、编译通过和 mock 通过不能代替真实运行证明。
+- Review 评论和静态扫描仅作为线索；核实契约与可达条件，不盲目添加判空、兜底或扩大防御逻辑。
+- 每项发现写清触发条件、原有与当前行为、故障后果、证据和建议。未知条件列为待确认，不作为已证实 P1。
+- 测试聚焦风险路径并遵守项目验证约定；不默认运行全仓测试、构建或线上写操作。
 
-1. Determine scope: prefer staged changes with `git diff --cached --name-only`; otherwise use `git diff --name-only master...HEAD`; if unavailable, use `git diff --name-only`.
-2. Read the relevant diff and group changed files by directory/module.
-3. If the change is small, roughly 3-5 files or fewer, review locally without subAgents.
-4. If larger, split review by module and start 2-5 subAgents. Each subAgent reviews only assigned files for risk items.
-5. Main agent synthesizes findings, removes duplicates/weak claims, decides fixes, then edits code if fixes are needed.
+## 归属
 
-## Review Only These Risks
+本专项负责可证实的故障或回归。单纯命名、过度抽象、生命周期设计或模糊契约由对应专项主报。需要子 Agent 时由 review-coordinator 统一调度，单独调用本专项时直接完成审查。
 
-- Concurrency bugs, races, leaks, cancellation or timeout problems.
-- Suspicious bugs, nil/empty edge cases, wrong error handling, resource leaks.
-- Field/data anomalies: wrong source field, missing required field, accidental overwrite, dropped field in conversion, wrong enum/status/ID/timestamp/unit/currency, unsafe zero-value semantics, pointer/value/nil confusion, or incompatible JSON/protobuf/DB tags.
-- Ignored or swallowed errors: blank-identifier errors, unchecked returned errors, logging without propagation when callers need failure, fallback after failed parse/IO/RPC/DB operations, and unchecked `Close`, `Flush`, `Commit`, `Rollback`, `Scan`, `Encode`, `Decode`, `Marshal`, or `Unmarshal` errors when they can affect correctness.
-- Performance regressions, unnecessary fan-out, repeated heavy work, avoidable allocations.
-- Logic errors, state transitions, off-by-one, ordering, idempotency, contract violations.
-- API/data compatibility risks and security-sensitive mistakes.
+## 执行与输出
 
-When diffs touch DTOs, protobuf/JSON structs, database models, request/response assembly, or conversion code, review field mappings field by field. Treat missing validation, silent defaulting, and inconsistent field semantics as risks only when they can change behavior or corrupt data.
-
-## Output
-
-Lead with concrete findings: severity, file/line, risk, why it matters, and suggested fix. If no risk is found, say so and mention residual test gaps.
+用户指定范围优先；否则查看暂存区、工作区及相关未跟踪源文件，分支比较确认实际基准并使用 merge-base。说明审查范围，读取必要上下游，报告有证据的问题。默认只 Review；用户明确要求修复时才修改。提出业务约束下的最优方案，说明影响范围与兼容、性能、迁移取舍，不以最小 diff 为目标。输出位置、具体问题、证据、影响、建议与验证缺口；风险用 P1/P2/P3，个人设计约定不能直接升级为线上故障。无发现就明确说明。

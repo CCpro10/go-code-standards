@@ -1,0 +1,4 @@
+interface:
+  display_name: "abstraction-review"
+  short_description: "审查不必要的行为抽象：函数类型、函数变量、业务回调、单实现接口、策略对象、别名和薄包装"
+  default_prompt: "Use $abstraction-review to review the requested changes."

@@ -1,6 +1,6 @@
 interface:
-  display_name: "Go 设计与风格规范"
-  short_description: "审查数据结构设计、Go 风格与长期可维护性"
-  default_prompt: "Use $go-code-standards-zh to review this Go code for data-structure design, style, readability, and long-term maintainability."
+  display_name: "Go 表达规范"
+  short_description: "审查 Go 命名、注释、导出与局部表达规范"
+  default_prompt: "Use $go-code-standards-zh to review this Go code for naming, comments, exports, formatting, and local expression."
 policy:
   allow_implicit_invocation: false

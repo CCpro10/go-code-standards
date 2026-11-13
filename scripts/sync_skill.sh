@@ -24,6 +24,11 @@ Agents:
   all             Install to codex and claude-code
 
 Skills:
+  review-coordinator     Multi-specialty review with user-selected scope and models
+  code-review            Compatibility entry for review-coordinator
+  abstraction-review     Behavior abstraction necessity review
+  contract-boundary-review
+                         Input, validation, defaults and failure contract review
   go-code-standards      English Go code standards skill
   go-code-standards-zh   Chinese Go code standards skill
   normal-feature-development

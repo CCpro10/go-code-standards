@@ -8,6 +8,25 @@ The canonical skill list lives in `skills/manifest.tsv`; both installation and v
 
 ## Skills
 
+### Review Responsibilities
+
+Use `review-coordinator` for a combined review. It asks for repository/diff scope, selected specialties, and each subagent's model/reasoning level before dispatching one isolated, read-only subagent per selected specialty. Explicit settings are reused. The main agent verifies evidence, checks requirements, and deduplicates root causes. `code-review` is a compatibility entry, not another review axis.
+
+| Specialty | Owns |
+| --- | --- |
+| go-code-standards / go-code-standards-zh | Naming, comments, exports, layout, local expression |
+| abstraction-review | Function types/values, single-implementation interfaces, aliases, thin wrappers |
+| main-flow-review | Business orchestration, abstraction levels, visible control flow |
+| data-model-review | IDL/DB models, fields, ownership, lifecycle, single source of truth |
+| contract-boundary-review | Preconditions/postconditions, validation, defaults, failure responsibilities |
+| code-risk-review | Demonstrable bugs, regressions, concurrency, performance, environment isolation |
+
+All specialties are review-only by default; explicit fix requests authorize subsequent edits. A concrete failure owns the primary risk finding; other specialties contribute evidence without duplicating it. Design suggestions seek the best justified design, not the smallest diff. `git-review-mode` remains a separate GoLand workspace operation.
+
+Calibration examples: a fixed `Runner func(...)` belongs to abstraction; prematurely retained `BackgroundTurn` state to data modeling; replay logic invading online orchestration to main flow; silent missing-config defaults to contracts; duplicate billing or incorrect lane routing to risk; compressed parameter formatting to Go expression. Do not remove legitimate framework callbacks, immutable snapshots, or concrete domain types merely to reduce counts.
+
+Install the coordinator and selected specialties with `scripts/sync_skill.sh --skill NAME`. Installing `code-review` also requires `review-coordinator`; `--all` installs the full set.
+
 | Skill | Purpose |
 | --- | --- |
 | `go-code-standards` | English Go style, readability, and maintainability review. |

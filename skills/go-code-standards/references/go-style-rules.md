@@ -18,14 +18,6 @@ This file keeps only general style rules derived from Google Go Style and the Ub
 - Avoid needless exported names. Export only what another package must use.
 - Functions that are not intended as package API must start with a lowercase letter.
 
-## API Shape
-
-- Accept interfaces and return concrete types when that keeps dependencies small and testing simple.
-- Define interfaces near the consumer unless a shared public contract is intentional.
-- Keep interfaces small. Single-method interfaces are fine when they model real behavior.
-- Put `context.Context` as the first parameter after the receiver. Do not store contexts in structs.
-- Do not use `init` for ordinary setup; prefer explicit constructors and dependency injection.
-
 ## Error Text and Logging Style
 
 - Start error strings with lowercase text and do not end them with punctuation.

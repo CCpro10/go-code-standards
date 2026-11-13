@@ -1,0 +1,4 @@
+interface:
+  display_name: "contract-boundary-review"
+  short_description: "审查输入、配置、校验、错误和降级的责任边界：静默默认值、非法输入修正、重复校验、依赖初始化、吞错与过度防御"
+  default_prompt: "Use $contract-boundary-review to review the requested changes."
