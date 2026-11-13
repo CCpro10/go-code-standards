@@ -1,4 +1,0 @@
-interface:
-  display_name: "Review compatibility entry"
-  short_description: "Route legacy code-review requests to review-coordinator"
-  default_prompt: "Use $code-review to configure a multi-specialty review."

@@ -10,11 +10,11 @@ The canonical skill list lives in `skills/manifest.tsv`; both installation and v
 
 ### Review Responsibilities
 
-Use `review-coordinator` for a combined review. It asks for repository/diff scope, selected specialties, and each subagent's model/reasoning level before dispatching one isolated, read-only subagent per selected specialty. Explicit settings are reused. The main agent verifies evidence, checks requirements, and deduplicates root causes. `code-review` is a compatibility entry, not another review axis.
+Use `review-coordinator` for a combined review. It asks for repository/diff scope, selected specialties, and each subagent's model/reasoning level before dispatching one isolated, read-only subagent per selected specialty. Explicit settings are reused. The main agent verifies evidence, checks requirements, and deduplicates root causes.
 
 | Specialty | Owns |
 | --- | --- |
-| go-code-standards / go-code-standards-zh | Naming, comments, exports, layout, local expression |
+| go-code-standards | Naming, comments, exports, layout, local expression |
 | abstraction-review | Function types/values, single-implementation interfaces, aliases, thin wrappers |
 | main-flow-review | Business orchestration, abstraction levels, visible control flow |
 | data-model-review | IDL/DB models, fields, ownership, lifecycle, single source of truth |
@@ -25,12 +25,11 @@ All specialties are review-only by default; explicit fix requests authorize subs
 
 Calibration examples: a fixed `Runner func(...)` belongs to abstraction; prematurely retained `BackgroundTurn` state to data modeling; replay logic invading online orchestration to main flow; silent missing-config defaults to contracts; duplicate billing or incorrect lane routing to risk; compressed parameter formatting to Go expression. Do not remove legitimate framework callbacks, immutable snapshots, or concrete domain types merely to reduce counts.
 
-Install the coordinator and selected specialties with `scripts/sync_skill.sh --skill NAME`. Installing `code-review` also requires `review-coordinator`; `--all` installs the full set.
+Install the coordinator and selected specialties with `scripts/sync_skill.sh --skill NAME`. `--all` installs the full set.
 
 | Skill | Purpose |
 | --- | --- |
 | `go-code-standards` | English Go style, readability, and maintainability review. |
-| `go-code-standards-zh` | Chinese Go style review. This is the source of truth for project-specific style rules. |
 | `normal-feature-development` | Normal small feature workflow: explore code, choose a simple approach, implement, and verify without subAgents. |
 | `spark-feature-development` | Spark-assisted feature workflow: summarize change points, delegate implementation to Spark, then review and polish. |
 | `luna-feature-development` | Token-efficient workflow: pass focused context to one Luna subAgent, then review and finish in the main agent. |
@@ -42,7 +41,7 @@ Install the coordinator and selected specialties with `scripts/sync_skill.sh --s
 
 ## Migration From The Old Single-Skill Layout
 
-Earlier versions exposed the Go standards Skill at the repository root. This repository is now intentionally multi-Skill, so root-level `SKILL.md` is no longer present. Install `go-code-standards` or `go-code-standards-zh` with `scripts/sync_skill.sh` instead of cloning the repository root into a skills directory.
+Earlier versions exposed the Go standards Skill at the repository root. This repository is now intentionally multi-Skill, so root-level `SKILL.md` is no longer present. Install `go-code-standards` with `scripts/sync_skill.sh` instead of cloning the repository root into a skills directory.
 
 ## Install Or Update
 
@@ -76,10 +75,10 @@ curl -fsSL https://raw.githubusercontent.com/CCpro10/go-code-standards/main/scri
 curl -fsSL https://raw.githubusercontent.com/CCpro10/go-code-standards/main/scripts/sync_skill.sh | bash -s -- --skill code-risk-review --agent claude-code
 ```
 
-Install the Chinese Go standards Skill:
+Install Go standards (Chinese authoritative rules are bundled):
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/CCpro10/go-code-standards/main/scripts/sync_skill.sh | bash -s -- --skill go-code-standards-zh
+curl -fsSL https://raw.githubusercontent.com/CCpro10/go-code-standards/main/scripts/sync_skill.sh | bash -s -- --skill go-code-standards
 ```
 
 Install all Skills:
@@ -158,8 +157,8 @@ python3 ~/.agents/skills/go-code-standards/scripts/enforce_go_style.py --repo . 
 
 The Chinese Go style rules are the source of truth:
 
-1. `skills/go-code-standards-zh/references/project-rules.md`: highest-priority style and maintainability rules taught by the user. These must be followed completely.
-2. `skills/go-code-standards-zh/references/go-style-rules.md`: general Go style rules learned from Google Go Style and the Uber Go Style Guide.
+1. `skills/go-code-standards/references/project-rules.zh.md`: highest-priority style and maintainability rules taught by the user. These must be followed completely.
+2. `skills/go-code-standards/references/go-style-rules.zh.md`: general Go style rules learned from Google Go Style and the Uber Go Style Guide.
 3. Repository-local conventions, only when they do not violate the two rule layers above.
 
 English synchronized files:

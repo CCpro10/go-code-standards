@@ -2,3 +2,5 @@ interface:
   display_name: "Go Expression Standards"
   short_description: "Review Go naming, comments, exports and local expression"
   default_prompt: "Use $go-code-standards to review this Go code for naming, comments, exports, formatting, and local expression."
+policy:
+  allow_implicit_invocation: false

@@ -5,7 +5,7 @@ description: Review local Go expression: naming, comments, exports, declaration 
 
 # Go Expression Review
 
-Read references/project-rules.md first, then references/go-style-rules.md. Chinese rules are authoritative.
+Read references/project-rules.md first, then references/go-style-rules.md. The authoritative Chinese versions are bundled as references/project-rules.zh.md and references/go-style-rules.zh.md; use them for Chinese reviews or to resolve translation differences.
 
 Review the user-selected scope, tracing callers when necessary to establish naming and export semantics. Report location, rule, impact and recommendation; say so when no findings exist. Edit only when fixes are requested.
 

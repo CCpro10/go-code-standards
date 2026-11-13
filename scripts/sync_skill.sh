@@ -25,12 +25,10 @@ Agents:
 
 Skills:
   review-coordinator     Multi-specialty review with user-selected scope and models
-  code-review            Compatibility entry for review-coordinator
   abstraction-review     Behavior abstraction necessity review
   contract-boundary-review
                          Input, validation, defaults and failure contract review
   go-code-standards      English Go code standards skill
-  go-code-standards-zh   Chinese Go code standards skill
   normal-feature-development
                          Normal small feature development workflow skill
   spark-feature-development
@@ -49,10 +47,9 @@ Examples:
   sync_skill.sh --skill normal-feature-development
   sync_skill.sh --skill spark-feature-development
   sync_skill.sh --skill luna-feature-development
-  sync_skill.sh --skill go-code-standards-zh
   sync_skill.sh --skill code-risk-review --agent claude-code
   sync_skill.sh --skill go-code-standards --target-root "$PWD/.agents/skills"
-  sync_skill.sh --lang zh              # backwards-compatible alias for go-code-standards-zh
+  sync_skill.sh --lang zh              # Go standards with bundled Chinese rules
   sync_skill.sh --all
 
 Environment:
@@ -94,7 +91,7 @@ while [[ $# -gt 0 ]]; do
       lang_set="true"
       case "${2:-}" in
         en) skill="go-code-standards" ;;
-        zh) skill="go-code-standards-zh" ;;
+        zh) skill="go-code-standards" ;;
         *) echo "--lang must be en or zh" >&2; exit 2 ;;
       esac
       shift 2

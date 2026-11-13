@@ -17,7 +17,7 @@ description: 协调多专项代码 Review：先询问范围、专项选择、子
 ## 调度
 
 - 固定基准与源提交，记录工作区 diff；读取项目约定和需求依据。需求不明时标记不能验证的部分。
-- 每个选中的专项分别创建一个独立子 Agent，最多六个：go-code-standards（用户指定中文则用 go-code-standards-zh）、abstraction-review、main-flow-review、data-model-review、contract-boundary-review、code-risk-review。
+- 每个选中的专项分别创建一个独立子 Agent，最多六个：go-code-standards（中文权威规则已内置）、abstraction-review、main-flow-review、data-model-review、contract-boundary-review、code-risk-review。
 - 使用独立上下文，不 fork 整段历史。传入明确仓库路径、固定 diff/提交、必要需求、约定、该专项 Skill 完整内容、归属边界与只读要求。工作区继续变化时重新固定审查版本，不把不同版本结论混用。
 - 按用户确认的模型和思考等级设置工具实际支持的参数。子 Agent 不再派生其他子 Agent，不修改代码、不提交、不推送；缺少工具能力时明确说明，等待选择替代方式。
 - 等待全部选中专项完成，记录失败或未覆盖项。主 Agent 逐条核验读写位置与触发条件，删除弱证据结论，核对需求是否遗漏或实现越界。
