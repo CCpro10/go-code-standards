@@ -27,6 +27,8 @@ Calibration examples: a fixed `Runner func(...)` belongs to abstraction; prematu
 
 Install the coordinator and selected specialties with `scripts/sync_skill.sh --skill NAME`. `--all` installs the full set.
 
+Use `review-findings-recheck` after a review to independently verify existing findings and weigh actual impact against repair complexity. It classifies validity and recommends must fix, should fix, defer, or no fix; it does not edit by default or run as a seventh parallel specialty. Install with `scripts/sync_skill.sh --skill review-findings-recheck`.
+
 | Skill | Purpose |
 | --- | --- |
 | `go-code-standards` | English Go style, readability, and maintainability review. |
@@ -38,6 +40,7 @@ Install the coordinator and selected specialties with `scripts/sync_skill.sh --s
 | `main-flow-review` | Review main flows and abstraction levels: each level should explain a complete responsibility, with lower levels naturally adding detail. Review only. |
 | `svg-to-feishu-board` | Design or import SVG as editable Feishu whiteboard nodes, with layout guides, local preview, and cloud verification. Requires an authorized `lark-cli`. |
 | `git-review-mode` | Use the main checkout as a fixed GoLand review directory, with staged diffs against the latest remote base and untouched feature worktrees. |
+| `review-findings-recheck` | Reassess existing findings, acceptable failures, and the benefit versus complexity of proposed fixes. |
 
 ## Migration From The Old Single-Skill Layout
 

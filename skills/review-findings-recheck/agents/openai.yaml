@@ -1,0 +1,4 @@
+interface:
+  display_name: "Review 问题复核"
+  short_description: "独立核实审查发现，权衡实际风险与修复复杂度，判断哪些问题值得修改"
+  default_prompt: "Use $review-findings-recheck to independently reassess these review findings and recommend which issues are worth fixing before changing code."

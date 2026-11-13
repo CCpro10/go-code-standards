@@ -25,6 +25,7 @@ Agents:
 
 Skills:
   review-coordinator     Multi-specialty review with user-selected scope and models
+  review-findings-recheck Reassess existing findings and decide whether fixes are worthwhile
   abstraction-review     Behavior abstraction necessity review
   contract-boundary-review
                          Input, validation, defaults and failure contract review
