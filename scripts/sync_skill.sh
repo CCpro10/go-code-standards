@@ -24,7 +24,6 @@ Agents:
   all             Install to codex and claude-code
 
 Skills:
-  more                  Goal-driven initiative and concrete follow-through
   review-coordinator     Multi-specialty review with user-selected scope and models
   review-findings-recheck Reassess existing findings and decide whether fixes are worthwhile
   abstraction-review     Behavior abstraction necessity review

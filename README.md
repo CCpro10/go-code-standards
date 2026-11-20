@@ -31,7 +31,6 @@ Use `review-findings-recheck` after a review to independently verify existing fi
 
 | Skill | Purpose |
 | --- | --- |
-| `more` | Infer the task goal from evidence, reassess the approach, and complete relevant authorized follow-through, including configuration and release dependencies when preparing to ship. |
 | `go-code-standards` | English Go style, readability, and maintainability review. |
 | `normal-feature-development` | Normal small feature workflow: explore code, choose a simple approach, implement, and verify without subAgents. |
 | `spark-feature-development` | Spark-assisted feature workflow: summarize change points, delegate implementation to Spark, then review and polish. |
@@ -68,7 +67,6 @@ curl -fsSL https://raw.githubusercontent.com/CCpro10/go-code-standards/main/scri
 Install a specific Skill:
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/CCpro10/go-code-standards/main/scripts/sync_skill.sh | bash -s -- --skill more
 curl -fsSL https://raw.githubusercontent.com/CCpro10/go-code-standards/main/scripts/sync_skill.sh | bash -s -- --skill normal-feature-development
 curl -fsSL https://raw.githubusercontent.com/CCpro10/go-code-standards/main/scripts/sync_skill.sh | bash -s -- --skill spark-feature-development
 curl -fsSL https://raw.githubusercontent.com/CCpro10/go-code-standards/main/scripts/sync_skill.sh | bash -s -- --skill luna-feature-development

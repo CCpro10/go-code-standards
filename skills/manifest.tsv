@@ -7,7 +7,6 @@ abstraction-review	Review necessity of function values, interfaces, strategies, 
 contract-boundary-review	Review input, validation, configuration, failure and fallback responsibilities.
 review-coordinator	Confirm scope, specialties and models; delegate one subagent per selected review specialty.
 review-findings-recheck	Independently reassess existing review findings and weigh real impact against repair complexity before recommending fixes.
-more	Reason from the user's underlying goal, reassess the approach, and proactively complete relevant authorized follow-through.
 data-model-review	Review data models, long-lived containers, field lifecycles, single source of truth, and data flow without editing code.
 main-flow-review	Review main-flow readability, function responsibilities, and progressively understandable abstraction levels without editing code.
 svg-to-feishu-board	Design or import SVG as editable Feishu whiteboard nodes, with local preview and cloud verification.
