@@ -1,0 +1,4 @@
+interface:
+  display_name: "More · 从目标推进"
+  short_description: "理解命令背后的目标，反思执行路径，主动补齐关键遗漏并验证交付"
+  default_prompt: "Use $more to reassess the goal behind this task, identify missing steps, and proactively complete the work within the authorized scope."
